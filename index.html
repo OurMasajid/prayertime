@@ -1,27 +1,155 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <title>Title</title>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
-  </head>
-  <body>
-      
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://ourmasajid.github.io/prayertime/prayertime.js"></script>
-    <script>
-    prayTimes.setMethod('ISNA');
-    console.log(prayTimes.getTimes(new Date(), [45.0513210, -93.3258340], -5, 0, "12hNS"));
-    
-    </script>
+<head>
+  <title>Prayer Time</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
-  </body>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B"
+    crossorigin="anonymous">
+</head>
+
+<body>
+  timezone todo
+  <div class="align-items-center py-1">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p class="lead">Calculation Method</p>
+          <select id="cmethod" class="custom-select custom-select-lg">
+            <option value="ISNA">Islamic Society of North America (ISNA)</option>
+            <option value="MWL">Muslim World League</option>
+            <option value="Egypt">Egyptian General Authority of Survey</option>
+            <option value="Makkah">Umm Al-Qura University, Makkah</option>
+            <option value="Karachi">University of Islamic Sciences, Karachi</option>
+            <option value="Tehran">Institute of Geophysics, University of Tehran</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="align-items-center py-1">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <p class="lead">Asr</p>
+            <select id="casr" class="custom-select custom-select-lg">
+              <option value="Standard">Shafi`i, Maliki, Ja`fari, Hanbali</option>
+              <option value="Hanafi">Hanafi</option>
+            </select>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="align-items-center py-1">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <p class="lead">Location</p>
+            <button id="locBtn" class="btn secondary">Find my location</button>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="align-items-center py-3">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 class="display-4">Daily Prayer</h1>
+          <table class="table table-striped lead">
+            <thead>
+              <tr>
+                <th scope="col"></th>
+                <th scope="col">Athan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Fajr</th>
+                <td id="f">0:00 </td>
+              </tr>
+              <tr>
+                <th scope="row">Sunset</th>
+                <td id="s">0:00</td>
+              </tr>
+              <tr>
+                <th scope="row">Duhr</th>
+                <td id="d" class="">0:00</td>
+              </tr>
+              <tr>
+                <th scope="row">Asr</th>
+                <td id="a" class="">0:00</td>
+              </tr>
+              <tr>
+                <th scope="row">Maghrib</th>
+                <td id="m">0:00</td>
+              </tr>
+              <tr>
+                <th scope="row">Isha</th>
+                <td id="i">0:00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://ourmasajid.github.io/prayertime/prayertime.js"></script>
+  <script>
+    var pos = {
+      "lat":0,
+      "lon":0
+    }
+    function updatePrayerTime(){
+      prayTimes.setMethod(document.getElementById("cmethod").value);
+      prayTimes.adjust( {asr: document.getElementById("casr").value});
+      daily = prayTimes.getTimes(new Date(), [pos.lat, pos.lon], -5, 0, "12hNS");
+      f.innerHTML = daily.fajr;
+      s.innerHTML = daily.sunrise;
+      d.innerHTML = daily.dhuhr;
+      a.innerHTML = daily.asr;
+      m.innerHTML = daily.maghrib;
+      i.innerHTML = daily.isha;
+      console.log(daily);
+    }
+    document.getElementById("cmethod").addEventListener("change", function(){
+      setTimeout(updatePrayerTime,1);
+    });
+    document.getElementById("casr").addEventListener("change", function(){
+      setTimeout(updatePrayerTime,1);
+    });
+    document.getElementById("locBtn").addEventListener("click", function(){
+      getLocation();
+    });
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else { 
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    function showPosition(position) {
+      pos.lat= position.coords.latitude;
+      pos.lon= position.coords.longitude;
+      updatePrayerTime();
+    }
+
+    updatePrayerTime();
+  </script>
+
+  <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em"
+    crossorigin="anonymous"></script> -->
+</body>
+
 </html>
