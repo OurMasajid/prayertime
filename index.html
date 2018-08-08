@@ -12,7 +12,7 @@
     crossorigin="anonymous">
 </head>
 
-<body>
+<body style="background: grey;">
   timezone todo
   <div class="align-items-center py-1">
     <div class="container">
@@ -32,25 +32,25 @@
     </div>
   </div>
   <div class="align-items-center py-1">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12">
-            <p class="lead">Asr</p>
-            <select id="casr" class="custom-select custom-select-lg">
-              <option value="Standard">Shafi`i, Maliki, Ja`fari, Hanbali</option>
-              <option value="Hanafi">Hanafi</option>
-            </select>
-          </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p class="lead">Asr</p>
+          <select id="casr" class="custom-select custom-select-lg">
+            <option value="Standard">Shafi`i, Maliki, Ja`fari, Hanbali</option>
+            <option value="Hanafi">Hanafi</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
   <div class="align-items-center py-1">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12">
-            <p class="lead">Location</p>
-            <button id="locBtn" class="btn secondary">Find my location</button>
-          </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p class="lead">Location</p>
+          <button id="locBtn" class="btn secondary">Find my location</button>
+        </div>
       </div>
     </div>
   </div>
@@ -102,13 +102,14 @@
   <script src="https://prayertime.ourmasajid.com/prayertime.js"></script>
   <script>
     var pos = {
-      "lat":0,
-      "lon":0
+      "lat": 0,
+      "lon": 0
     }
-    function updatePrayerTime(){
+    function updatePrayerTime() {
+      var dst = 0;/*day light saving*/
       prayTimes.setMethod(document.getElementById("cmethod").value);
-      prayTimes.adjust( {asr: document.getElementById("casr").value});
-      daily = prayTimes.getTimes(new Date(), [pos.lat, pos.lon], -5, 0, "12hNS");
+      prayTimes.adjust({ asr: document.getElementById("casr").value });
+      daily = prayTimes.getTimes(new Date(), [pos.lat, pos.lon], getuserTimezone(), dst, "12hNS");
       f.innerHTML = daily.fajr;
       s.innerHTML = daily.sunrise;
       d.innerHTML = daily.dhuhr;
@@ -117,31 +118,37 @@
       i.innerHTML = daily.isha;
       console.log(daily);
     }
-    document.getElementById("cmethod").addEventListener("change", function(){
-      setTimeout(updatePrayerTime,1);
+    document.getElementById("cmethod").addEventListener("change", function () {
+      setTimeout(updatePrayerTime, 1);
     });
-    document.getElementById("casr").addEventListener("change", function(){
-      setTimeout(updatePrayerTime,1);
+    document.getElementById("casr").addEventListener("change", function () {
+      setTimeout(updatePrayerTime, 1);
     });
-    document.getElementById("locBtn").addEventListener("click", function(){
+    document.getElementById("locBtn").addEventListener("click", function () {
       getLocation();
     });
 
     function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition);
-        } else { 
-            alert("Geolocation is not supported by this browser.");
-        }
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
     }
 
     function showPosition(position) {
-      pos.lat= position.coords.latitude;
-      pos.lon= position.coords.longitude;
+      pos.lat = position.coords.latitude;
+      pos.lon = position.coords.longitude;
       updatePrayerTime();
     }
-
-    updatePrayerTime();
+    function getuserTimezone(){
+      var offset = new Date().getTimezoneOffset();
+      if (offset < 0)
+        return offset / -60;
+      else
+        return offset / -60;
+    }
+    getLocation();
   </script>
 
   <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
