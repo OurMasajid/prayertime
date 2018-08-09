@@ -2,24 +2,77 @@
 <html lang="en">
 
 <head>
+  <script>
+    if (window.location.protocol.indexOf("https") === -1 && window.location.protocol.indexOf("file") === -1) {
+      window.location.protocol = "https:";
+    }
+  </script>
   <title>Prayer Time</title>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B"
-    crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
 </head>
+<nav class="nav-extended green darken-4">
+  <div class="nav-wrapper">
+    <a href="#" class="brand-logo center">Our Masajid</a>
+  </div>
+  <div class="nav-content">
+    <ul class="tabs tabs-transparent">
+      <li class="tab">
+        <a class="active" href="#prayerTab">Prayer Time</a>
+      </li>
+      <li class="tab">
+        <a href="#settingTab">Settings</a>
+      </li>
+    </ul>
+  </div>
+</nav>
 
-<body style="background: grey;">
-  timezone todo
-  <div class="align-items-center py-1">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-12">
-          <p class="lead">Calculation Method</p>
-          <select id="cmethod" class="custom-select custom-select-lg">
+<div id="prayerTab" class="col s12">
+  <div class="container">
+    <div class="section">
+        <a class="waves-effect waves-light btn mt center w-100" id="locBtn">Update Location <i class="material-icons right">location_on</i></a>
+      <div class="card-panel z-depth-4 mt">
+        <table style="font-size: 6vw; color:#616161">
+          <tbody>
+            <tr>
+              <td>Fajr</td>
+              <td id="f">0:00</td>
+            </tr>
+            <tr>
+              <td>Sunset</td>
+              <td id="s">0:00</td>
+            </tr>
+            <tr>
+              <td>Dhuhur</td>
+              <td id="d">0:00</td>
+            </tr>
+            <tr>
+              <td>Asr</td>
+              <td id="a">0:00</td>
+            </tr>
+            <tr>
+              <td>Maghrib</td>
+              <td id="m">0:00</td>
+            </tr>
+            <tr>
+              <td>Isha</td>
+              <td id="i">0:00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="settingTab" class="col s12">
+  <div class="container">
+    <div class="section">
+      <div class="card-panel z-depth-4">
+        <div class="input-field col s12">
+          <select id="cmethod">
             <option value="ISNA">Islamic Society of North America (ISNA)</option>
             <option value="MWL">Muslim World League</option>
             <option value="Egypt">Egyptian General Authority of Survey</option>
@@ -27,136 +80,83 @@
             <option value="Karachi">University of Islamic Sciences, Karachi</option>
             <option value="Tehran">Institute of Geophysics, University of Tehran</option>
           </select>
+          <label>Calculation Method</label>
+          <div class="input-field col s12 mt">
+            <select id="casr">
+              <option value="Standard">Shafi`i, Maliki, Ja`fari, Hanbali</option>
+              <option value="Hanafi">Hanafi</option>
+            </select>
+            <label>Asr Setting</label>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="align-items-center py-1">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-12">
-          <p class="lead">Asr</p>
-          <select id="casr" class="custom-select custom-select-lg">
-            <option value="Standard">Shafi`i, Maliki, Ja`fari, Hanbali</option>
-            <option value="Hanafi">Hanafi</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="align-items-center py-1">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-12">
-          <p class="lead">Location</p>
-          <button id="locBtn" class="btn secondary">Find my location</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="align-items-center py-3">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-12">
-          <h1 class="display-4">Daily Prayer</h1>
-          <table class="table table-striped lead">
-            <thead>
-              <tr>
-                <th scope="col"></th>
-                <th scope="col">Athan</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Fajr</th>
-                <td id="f">0:00 </td>
-              </tr>
-              <tr>
-                <th scope="row">Sunset</th>
-                <td id="s">0:00</td>
-              </tr>
-              <tr>
-                <th scope="row">Duhr</th>
-                <td id="d" class="">0:00</td>
-              </tr>
-              <tr>
-                <th scope="row">Asr</th>
-                <td id="a" class="">0:00</td>
-              </tr>
-              <tr>
-                <th scope="row">Maghrib</th>
-                <td id="m">0:00</td>
-              </tr>
-              <tr>
-                <th scope="row">Isha</th>
-                <td id="i">0:00</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Optional JavaScript -->
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://prayertime.ourmasajid.com/prayertime.js"></script>
-  <script>
-    var pos = {
-      "lat": 0,
-      "lon": 0
-    }
-    function updatePrayerTime() {
-      var dst = 0;/*day light saving*/
-      prayTimes.setMethod(document.getElementById("cmethod").value);
-      prayTimes.adjust({ asr: document.getElementById("casr").value });
-      daily = prayTimes.getTimes(new Date(), [pos.lat, pos.lon], getuserTimezone(), dst, "12hNS");
-      f.innerHTML = daily.fajr;
-      s.innerHTML = daily.sunrise;
-      d.innerHTML = daily.dhuhr;
-      a.innerHTML = daily.asr;
-      m.innerHTML = daily.maghrib;
-      i.innerHTML = daily.isha;
-      console.log(daily);
-    }
-    document.getElementById("cmethod").addEventListener("change", function () {
-      setTimeout(updatePrayerTime, 1);
-    });
-    document.getElementById("casr").addEventListener("change", function () {
-      setTimeout(updatePrayerTime, 1);
-    });
-    document.getElementById("locBtn").addEventListener("click", function () {
-      getLocation();
-    });
+</div>
+<style>
+  .mt {
+    margin-top: 30px;
+  }
+  .w-100{
+    width: 100%
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+<script>
+  M.AutoInit();
+</script>
 
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
-      } else {
-        alert("Geolocation is not supported by this browser.");
-      }
-    }
-
-    function showPosition(position) {
-      pos.lat = position.coords.latitude;
-      pos.lon = position.coords.longitude;
-      updatePrayerTime();
-    }
-    function getuserTimezone(){
-      var offset = new Date().getTimezoneOffset();
-      if (offset < 0)
-        return offset / -60;
-      else
-        return offset / -60;
-    }
+<!-- prayer time code -->
+<script src="https://prayertime.ourmasajid.com/prayertime.js"></script>
+<script>
+  var pos = {
+    "lat": 0,
+    "lon": 0
+  }
+  function updatePrayerTime() {
+    var dst = 0;/*day light saving*/
+    prayTimes.setMethod(document.getElementById("cmethod").value);
+    prayTimes.adjust({ asr: document.getElementById("casr").value });
+    daily = prayTimes.getTimes(new Date(), [pos.lat, pos.lon], getuserTimezone(), dst, "12hNS");
+    f.innerHTML = daily.fajr;
+    s.innerHTML = daily.sunrise;
+    d.innerHTML = daily.dhuhr;
+    a.innerHTML = daily.asr;
+    m.innerHTML = daily.maghrib;
+    i.innerHTML = daily.isha;
+    M.toast({html: 'Prayer time has been update!'})
+  }
+  document.getElementById("cmethod").addEventListener("change", function () {
+    setTimeout(updatePrayerTime, 1);
+  });
+  document.getElementById("casr").addEventListener("change", function () {
+    setTimeout(updatePrayerTime, 1);
+  });
+  document.getElementById("locBtn").addEventListener("click", function () {
     getLocation();
-  </script>
+  });
+  function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  }
+  function showPosition(position) {
+    pos.lat = position.coords.latitude;
+    pos.lon = position.coords.longitude;
+    updatePrayerTime();
+  }
+  function getuserTimezone() {
+    var offset = new Date().getTimezoneOffset();
+    if (offset < 0)
+      return offset / -60;
+    else
+      return offset / -60;
+  }
+  getLocation();
+</script>
 
-  <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-    crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em"
-    crossorigin="anonymous"></script> -->
 </body>
 
 </html>
