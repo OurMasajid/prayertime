@@ -1,5 +1,5 @@
 var dataCacheName = '0';
-var cacheName = '1';
+var cacheName = '2';
 var filesToCache = [
 ];
 
