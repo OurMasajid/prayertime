@@ -33,15 +33,15 @@ document.getElementById("casr").addEventListener("change", function () {
 function setNextPrayerMessage() {
     dailyWS = prayTimes.getTimes(new Date(), [pos.lat, pos.lon], getuserTimezone(), 0, "24h");
     setCurrentNextPrayer();
-    nextPrayer.innerHTML = "It's time for "+ current;
+    nextPrayer.innerHTML = "It's time for " + current;
 }
-function setCurrentNextPrayer(){
+function setCurrentNextPrayer() {
     let date = new Date();
     let hours = date.getHours();
     let mins = date.getMinutes();
     let prayernames = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
     next = prayernames[0];
-    current = prayernames[prayernames.length-1];
+    current = prayernames[prayernames.length - 1];
     for (let i = 0; i < prayernames.length; i++) {
         let element = prayernames[i];
 
@@ -50,13 +50,13 @@ function setCurrentNextPrayer(){
         if (eleHour > hours) {
             next = element;
             if (i == 0) { current = prayernames[prayernames.length - 1]; }
-        else { current = prayernames[i - 1]; }
+            else { current = prayernames[i - 1]; }
             break;
         }
         if (eleHour == hours && eleMin > mins) {
             next = element;
             if (i == 0) { current = prayernames[prayernames.length - 1]; }
-        else { current = prayernames[i - 1]; }
+            else { current = prayernames[i - 1]; }
             break;
         }
     };
@@ -81,3 +81,8 @@ function getuserTimezone() {
         return offset / -60;
 }
 setTimeout(getLocation(), 0);
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+        .register('./sw.js')
+        .then(function () { console.log('Service Worker Registered'); });
+}
