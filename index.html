@@ -5,6 +5,7 @@
   <title>Prayer Time</title>
   <!-- Required meta tags -->
   <meta charset="utf-8">
+  <link rel="manifest" href="/manifest.json">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
@@ -30,7 +31,8 @@
     <div class="row">
       <!-- <a class="waves-effect waves-light btn mt center w-100" id="locBtn">Update Location <i class="material-icons right">location_on</i></a> -->
       <div class="col l6 s12">
-        <p id="nextPrayer" class="center flow-text" style="text-transform:capitalize;color:#616161">Next prayer in 10 mins</p>
+        <p id="nextPrayer" class="center flow-text" style="text-transform:capitalize;color:#616161">Next prayer in 10
+          mins</p>
         <div class="card-panel z-depth-4 mt">
           <table class="flow-text" style="color:#616161">
             <tbody>
@@ -58,6 +60,10 @@
                 <td>Isha</td>
                 <td id="i">0:00</td>
               </tr>
+              <tr>
+                <td>Midnight</td>
+                <td id="mid">0:00</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -79,8 +85,8 @@
               <option value="Karachi">University of Islamic Sciences, Karachi</option>
               <option value="Tehran">Institute of Geophysics, University of Tehran</option>
             </select>
-          <label>Calculation Method</label>
-        </div>
+            <label>Calculation Method</label>
+          </div>
           <div class="input-field mt">
             <select id="casr">
               <option value="Standard">Shafi`i, Maliki, Ja`fari, Hanbali</option>

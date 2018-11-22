@@ -1,0 +1,10 @@
+{
+    "name": "Prayer Time",
+    "short_name": "Prayer Time",
+    "theme_color": "#21f37b",
+    "background_color": "#84a0b6",
+    "display": "standalone",
+    "orientation": "portrait",
+    "scope": "/",
+    "start_url": "/"
+  }
