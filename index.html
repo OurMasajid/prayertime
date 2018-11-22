@@ -27,57 +27,61 @@
 
 <div id="prayerTab" class="col s12">
   <div class="container">
-    <div class="section">
-        <!-- <a class="waves-effect waves-light btn mt center w-100" id="locBtn">Update Location <i class="material-icons right">location_on</i></a> -->
-        <p id="nextPrayer" class="center" style="text-transform:capitalize;font-size: 5vw">Next prayer in 10 mins</p>
-      <div class="card-panel z-depth-4 mt">
-        <table style="font-size: 5vw; color:#616161">
-          <tbody>
-            <tr>
-              <td>Fajr</td>
-              <td id="f">0:00</td>
-            </tr>
-            <tr>
-              <td>Sunrise</td>
-              <td id="s">0:00</td>
-            </tr>
-            <tr>
-              <td>Dhuhur</td>
-              <td id="d">0:00</td>
-            </tr>
-            <tr>
-              <td>Asr</td>
-              <td id="a">0:00</td>
-            </tr>
-            <tr>
-              <td>Maghrib</td>
-              <td id="m">0:00</td>
-            </tr>
-            <tr>
-              <td>Isha</td>
-              <td id="i">0:00</td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="row">
+      <!-- <a class="waves-effect waves-light btn mt center w-100" id="locBtn">Update Location <i class="material-icons right">location_on</i></a> -->
+      <div class="col l6 s12">
+        <p id="nextPrayer" class="center flow-text" style="text-transform:capitalize;color:#616161">Next prayer in 10 mins</p>
+        <div class="card-panel z-depth-4 mt">
+          <table class="flow-text" style="color:#616161">
+            <tbody>
+              <tr>
+                <td>Fajr</td>
+                <td id="f">0:00</td>
+              </tr>
+              <tr>
+                <td>Sunrise</td>
+                <td id="s">0:00</td>
+              </tr>
+              <tr>
+                <td>Dhuhur</td>
+                <td id="d">0:00</td>
+              </tr>
+              <tr>
+                <td>Asr</td>
+                <td id="a">0:00</td>
+              </tr>
+              <tr>
+                <td>Maghrib</td>
+                <td id="m">0:00</td>
+              </tr>
+              <tr>
+                <td>Isha</td>
+                <td id="i">0:00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </div>
 <div id="settingTab" class="col s12">
   <div class="container">
-    <div class="section">
-      <div class="card-panel z-depth-4">
-        <div class="input-field col s12">
-          <select id="cmethod">
-            <option value="ISNA">Islamic Society of North America (ISNA)</option>
-            <option value="MWL">Muslim World League</option>
-            <option value="Egypt">Egyptian General Authority of Survey</option>
-            <option value="Makkah">Umm Al-Qura University, Makkah</option>
-            <option value="Karachi">University of Islamic Sciences, Karachi</option>
-            <option value="Tehran">Institute of Geophysics, University of Tehran</option>
-          </select>
+    <div class="row">
+      <div class="col l6 s12">
+        <div class="card-panel z-depth-4">
+          <div class="input-field">
+            <select id="cmethod">
+              <option value="ISNA">Islamic Society of North America (ISNA)</option>
+              <option value="MWL">Muslim World League</option>
+              <option value="Egypt">Egyptian General Authority of Survey</option>
+              <option value="Makkah">Umm Al-Qura University, Makkah</option>
+              <option value="Karachi">University of Islamic Sciences, Karachi</option>
+              <option value="Tehran">Institute of Geophysics, University of Tehran</option>
+            </select>
           <label>Calculation Method</label>
-          <div class="input-field col s12 mt">
+        </div>
+          <div class="input-field mt">
             <select id="casr">
               <option value="Standard">Shafi`i, Maliki, Ja`fari, Hanbali</option>
               <option value="Hanafi">Hanafi</option>
@@ -93,7 +97,8 @@
   .mt {
     margin-top: 30px;
   }
-  .w-100{
+
+  .w-100 {
     width: 100%
   }
 </style>
@@ -104,7 +109,7 @@
 
 <!-- prayer time code -->
 <script src="./prayertime.js"></script>
-<script src="./engine.js" ></script>
+<script src="./engine.js"></script>
 
 </body>
 
