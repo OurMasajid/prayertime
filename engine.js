@@ -18,8 +18,9 @@ function updatePrayerTime() {
     a.innerHTML = daily.asr;
     m.innerHTML = daily.maghrib;
     i.innerHTML = daily.isha;
+    mid.innerHTML = daily.midnight;
     M.toast({ html: 'Prayer time has been update!' });
-    setTimeout(getNextPrayerTime(), 0);
+    setTimeout(setNextPrayerMessage(), 0);
     return;
 }
 document.getElementById("cmethod").addEventListener("change", function () {
@@ -29,8 +30,12 @@ document.getElementById("casr").addEventListener("change", function () {
     setTimeout(updatePrayerTime, 0);
 });
 
-function getNextPrayerTime() {
+function setNextPrayerMessage() {
     dailyWS = prayTimes.getTimes(new Date(), [pos.lat, pos.lon], getuserTimezone(), 0, "24h");
+    setCurrentNextPrayer();
+    nextPrayer.innerHTML = "It's time for "+ current;
+}
+function setCurrentNextPrayer(){
     let date = new Date();
     let hours = date.getHours();
     let mins = date.getMinutes();
@@ -55,7 +60,6 @@ function getNextPrayerTime() {
             break;
         }
     };
-    nextPrayer.innerHTML = "It's time for "+ current;
 }
 function getLocation() {
     if (navigator.geolocation) {
