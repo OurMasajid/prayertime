@@ -2,11 +2,6 @@
 <html lang="en">
 
 <head>
-  <script>
-    if (window.location.protocol.indexOf("https") === -1 && window.location.protocol.indexOf("file") === -1) {
-      window.location.protocol = "https:";
-    }
-  </script>
   <title>Prayer Time</title>
   <!-- Required meta tags -->
   <meta charset="utf-8">
@@ -33,9 +28,10 @@
 <div id="prayerTab" class="col s12">
   <div class="container">
     <div class="section">
-        <a class="waves-effect waves-light btn mt center w-100" id="locBtn">Update Location <i class="material-icons right">location_on</i></a>
+        <!-- <a class="waves-effect waves-light btn mt center w-100" id="locBtn">Update Location <i class="material-icons right">location_on</i></a> -->
+        <p id="nextPrayer" class="center" style="text-transform:capitalize;font-size: 5vw">Next prayer in 10 mins</p>
       <div class="card-panel z-depth-4 mt">
-        <table style="font-size: 6vw; color:#616161">
+        <table style="font-size: 5vw; color:#616161">
           <tbody>
             <tr>
               <td>Fajr</td>
@@ -107,55 +103,8 @@
 </script>
 
 <!-- prayer time code -->
-<script src="https://prayertime.ourmasajid.com/prayertime.js"></script>
-<script>
-  var pos = {
-    "lat": 0,
-    "lon": 0
-  }
-  function updatePrayerTime() {
-    var dst = 0;/*day light saving*/
-    prayTimes.setMethod(document.getElementById("cmethod").value);
-    prayTimes.adjust({ asr: document.getElementById("casr").value });
-    daily = prayTimes.getTimes(new Date(), [pos.lat, pos.lon], getuserTimezone(), dst, "12hNS");
-    f.innerHTML = daily.fajr;
-    s.innerHTML = daily.sunrise;
-    d.innerHTML = daily.dhuhr;
-    a.innerHTML = daily.asr;
-    m.innerHTML = daily.maghrib;
-    i.innerHTML = daily.isha;
-    M.toast({html: 'Prayer time has been update!'})
-  }
-  document.getElementById("cmethod").addEventListener("change", function () {
-    setTimeout(updatePrayerTime, 1);
-  });
-  document.getElementById("casr").addEventListener("change", function () {
-    setTimeout(updatePrayerTime, 1);
-  });
-  document.getElementById("locBtn").addEventListener("click", function () {
-    getLocation();
-  });
-  function getLocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(showPosition);
-    } else {
-      alert("Geolocation is not supported by this browser.");
-    }
-  }
-  function showPosition(position) {
-    pos.lat = position.coords.latitude;
-    pos.lon = position.coords.longitude;
-    updatePrayerTime();
-  }
-  function getuserTimezone() {
-    var offset = new Date().getTimezoneOffset();
-    if (offset < 0)
-      return offset / -60;
-    else
-      return offset / -60;
-  }
-  getLocation();
-</script>
+<script src="./prayertime.js"></script>
+<script src="./engine.js" ></script>
 
 </body>
 
