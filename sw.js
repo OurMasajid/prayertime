@@ -1,5 +1,5 @@
 var dataCacheName = '0';
-var cacheName = '2';
+var cacheName = '3';
 var filesToCache = [
 ];
 
@@ -32,7 +32,7 @@ self.addEventListener('fetch', function (e) {
     //console.log('[Service Worker] Fetch', e.request.url);
     e.respondWith(
         caches.match(e.request).then(function (response) {
-            return response || fetch(e.request);
+            return fetch(e.request);
         })
     );
 
