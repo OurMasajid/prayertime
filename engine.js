@@ -6,10 +6,17 @@ var next = "";
 var current = "";
 var daily = "";
 var dailyWS = "";
+
+function main(){
+    document.getElementById("cmethod").value = localStorage.getItem("cmethod");
+    document.getElementById("casr").value = localStorage.getItem("casr");
+    getLocation();//will call setLocation, which will call updatePrayerTime
+}
+
 function updatePrayerTime() {
     let dst = 0;/*day light saving*/
-    prayTimes.setMethod(document.getElementById("cmethod").value);
-    prayTimes.adjust({ asr: document.getElementById("casr").value });
+    prayTimes.setMethod(localStorage.getItem("cmethod"));
+    prayTimes.adjust({ asr: localStorage.getItem("casr") });
     daily = prayTimes.getTimes(new Date(), [pos.lat, pos.lon], getuserTimezone(), dst, "12hNS");
 
     f.innerHTML = daily.fajr;
@@ -19,21 +26,23 @@ function updatePrayerTime() {
     m.innerHTML = daily.maghrib;
     i.innerHTML = daily.isha;
     mid.innerHTML = daily.midnight;
-    M.toast({ html: 'Prayer time has been update!' });
+    console.log('Prayer time has been update!');
     setTimeout(setNextPrayerMessage(), 0);
     return;
 }
 document.getElementById("cmethod").addEventListener("change", function () {
+    localStorage.setItem(this.id, this.value);
     setTimeout(updatePrayerTime, 0);
 });
 document.getElementById("casr").addEventListener("change", function () {
+    localStorage.setItem(this.id, this.value);
     setTimeout(updatePrayerTime, 0);
 });
 
 function setNextPrayerMessage() {
     dailyWS = prayTimes.getTimes(new Date(), [pos.lat, pos.lon], getuserTimezone(), 0, "24h");
     setCurrentNextPrayer();
-    nextPrayer.innerHTML = "It's time for " + current;
+    console.log("It's time for " + current);
 }
 function setCurrentNextPrayer() {
     let date = new Date();
@@ -63,12 +72,12 @@ function setCurrentNextPrayer() {
 }
 function getLocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
+        navigator.geolocation.getCurrentPosition(setPosition);
     } else {
         alert("Geolocation is not supported by this browser.");
     }
 }
-function showPosition(position) {
+function setPosition(position) {
     pos.lat = position.coords.latitude;
     pos.lon = position.coords.longitude;
     setTimeout(updatePrayerTime, 0);
@@ -80,9 +89,9 @@ function getuserTimezone() {
     else
         return offset / -60;
 }
-setTimeout(getLocation(), 0);
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-        .register('./sw.js')
-        .then(function () { console.log('Service Worker Registered'); });
-}
+setTimeout(main(), 0);
+// if ('serviceWorker' in navigator) {
+//     navigator.serviceWorker
+//         .register('./sw.js')
+//         .then(function () { console.log('Service Worker Registered'); });
+// }
