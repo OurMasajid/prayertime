@@ -12,32 +12,34 @@
 </head>
 
 <body>
-
+<div id="clock"></div>
+<div>Current Prayer <span id="currentPrayer"></span> in <span id="currentPrayerTime"></span></div>
+<div>Next Prayer <span id="nextPrayer"></span> in <span id="nextPrayerTime"></span></div>
 <span>Fajr</span>
 <span id="f">0:00</span>
 
 
-<span>, Sunrise</span>
+<span>- Sunrise</span>
 <span id="s">0:00</span>
 
 
-<span>, Dhuhur</span>
+<span>- Dhuhur</span>
 <span id="d">0:00</span>
 
 
-<span>, Asr</span>
+<span>- Asr</span>
 <span id="a">0:00</span>
 
 
-<span>, Maghrib</span>
+<span>- Maghrib</span>
 <span id="m">0:00</span>
 
 
-<span>, Isha</span>
+<span>- Isha</span>
 <span id="i">0:00</span>
 
 
-<span>, Midnight</span>
+<span>- Midnight</span>
 <span id="mid">0:00</span>
 
 <br>
@@ -58,16 +60,6 @@
   <option value="Hanafi">Hanafi</option>
 </select>
 
-
-<style>
-  .mt {
-    margin-top: 30px;
-  }
-
-  .w-100 {
-    width: 100%
-  }
-</style>
 
 <!-- prayer time code -->
 <script src="./prayertime.js"></script>
