@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Prayer Time</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+</head>
+<nav class="nav-extended green darken-4">
+  <div class="nav-wrapper">
+    <a href="#" class="brand-logo center">Our Masajid</a>
+  </div>
+  <div class="nav-content">
+    <ul class="tabs tabs-transparent">
+      <li class="tab">
+        <a class="active" href="#prayerTab">Prayer Time</a>
+      </li>
+      <li class="tab">
+        <a href="#settingTab">Settings</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div id="prayerTab" class="col s12">
+  <div class="container">
+    <div class="row">
+      <!-- <a class="waves-effect waves-light btn mt center w-100" id="locBtn">Update Location <i class="material-icons right">location_on</i></a> -->
+      <div class="col l6 s12">
+        <p id="nextPrayer" class="center flow-text" style="text-transform:capitalize;color:#616161"></p>
+        <div class="card-panel z-depth-4 mt">
+          <table class="flow-text" style="color:#616161">
+            <tbody>
+              <tr>
+                <td>Fajr</td>
+                <td id="f">0:00</td>
+              </tr>
+              <tr>
+                <td>Sunrise</td>
+                <td id="s">0:00</td>
+              </tr>
+              <tr>
+                <td>Dhuhur</td>
+                <td id="d">0:00</td>
+              </tr>
+              <tr>
+                <td>Asr</td>
+                <td id="a">0:00</td>
+              </tr>
+              <tr>
+                <td>Maghrib</td>
+                <td id="m">0:00</td>
+              </tr>
+              <tr>
+                <td>Isha</td>
+                <td id="i">0:00</td>
+              </tr>
+              <tr>
+                <td>Midnight</td>
+                <td id="mid">0:00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="settingTab" class="col s12">
+  <div class="container">
+    <div class="row">
+      <div class="col l6 s12">
+        <div class="card-panel z-depth-4">
+          <div class="input-field">
+            <select id="cmethod">
+              <option value="ISNA">Islamic Society of North America (ISNA)</option>
+              <option value="MWL">Muslim World League</option>
+              <option value="Egypt">Egyptian General Authority of Survey</option>
+              <option value="Makkah">Umm Al-Qura University, Makkah</option>
+              <option value="Karachi">University of Islamic Sciences, Karachi</option>
+              <option value="Tehran">Institute of Geophysics, University of Tehran</option>
+            </select>
+            <label>Calculation Method</label>
+          </div>
+          <div class="input-field mt">
+            <select id="casr">
+              <option value="Standard">Shafi`i, Maliki, Ja`fari, Hanbali</option>
+              <option value="Hanafi">Hanafi</option>
+            </select>
+            <label>Asr Setting</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .mt {
+    margin-top: 30px;
+  }
+
+  .w-100 {
+    width: 100%
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+<script>
+  M.AutoInit();
+</script>
+
+<!-- prayer time code -->
+<script src="./prayertime.js"></script>
+<script src="./engine.js"></script>
+
+</body>
+
+</html>
