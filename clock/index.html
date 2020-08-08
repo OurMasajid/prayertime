@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Prayer Time</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="main.css">
+
+</head>
+
+<body>
+  <table>
+    <tr>
+      <td>Fajr</td>
+      <td id="f">0:00</td>
+      <td rowspan="7">
+        <div id="clock"></div>
+        <div>Current Prayer
+          <span id="currentPrayer"></span> at
+          <span id="currentPrayerTime"></span>
+          (<span id="currentPrayerSpan"></span>)
+        </div>
+        <div>Next Prayer
+          <span id="nextPrayer"></span> at
+          <span id="nextPrayerTime"></span>
+          (<span id="nextPrayerSpan"></span>)
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Sunrise</td>
+      <td id="s">0:00</td>
+    </tr>
+    <tr>
+      <td>Dhuhur</td>
+      <td id="d">0:00</td>
+    </tr>
+    <tr>
+      <td>Asr</td>
+      <td id="a">0:00</td>
+    </tr>
+    <tr>
+      <td>Maghrib</td>
+      <td id="m">0:00</td>
+    </tr>
+    <tr>
+      <td>Isha</td>
+      <td id="i">0:00</td>
+    </tr>
+    <tr>
+      <td>Midnight</td>
+      <td id="mid">0:00</td>
+    </tr>
+  </table>
+  
+  
+  
+  
+  <br>
+
+  <label>Calculation Method</label>
+  <select id="cmethod">
+    <option value="ISNA">Islamic Society of North America (ISNA)</option>
+    <option value="MWL">Muslim World League</option>
+    <option value="Egypt">Egyptian General Authority of Survey</option>
+    <option value="Makkah">Umm Al-Qura University, Makkah</option>
+    <option value="Karachi">University of Islamic Sciences, Karachi</option>
+    <option value="Tehran">Institute of Geophysics, University of Tehran</option>
+  </select>
+
+  <label>Asr Setting</label>
+  <select id="casr">
+    <option value="Standard">Shafi`i, Maliki, Ja`fari, Hanbali</option>
+    <option value="Hanafi">Hanafi</option>
+  </select>
+
+
+  <!-- prayer time code -->
+  <script src="./prayertime.js"></script>
+  <script src="./engine.js"></script>
+
+</body>
+
+</html>

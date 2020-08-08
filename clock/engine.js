@@ -4,6 +4,8 @@ var pos = {
 }
 var nextPrayerName= "";
 var currentPrayerName= "";
+var nextPrayerSpan = "";
+var currentPrayerSpan = "";
 var daily = "";
 var dailyWS = "";
 
@@ -72,11 +74,28 @@ function setCurrentNextPrayer() {
             break;
         }
     };
+
+    // calculating current and next spans
+    currentPrayerSpan = new Date();
+    currentPrayerSpan = new Date(currentPrayerSpan.setHours(dailyWS[currentPrayerName].split(":")[0]));
+    currentPrayerSpan = new Date(currentPrayerSpan.setMinutes(dailyWS[currentPrayerName].split(":")[1]));
+    currentPrayerSpan = new Date(currentPrayerSpan.setSeconds(0));
+    currentPrayerSpan = new Date(new Date().getTime() - currentPrayerSpan.getTime());
+
+    nextPrayerSpan = new Date();
+    nextPrayerSpan = new Date(nextPrayerSpan.setHours(dailyWS[nextPrayerName].split(":")[0]));
+    nextPrayerSpan = new Date(nextPrayerSpan.setMinutes(dailyWS[nextPrayerName].split(":")[1]));
+    nextPrayerSpan = new Date(nextPrayerSpan.setSeconds(0));
+    nextPrayerSpan = new Date(nextPrayerSpan.getTime() - new Date().getTime());
+
+
     document.getElementById("currentPrayer").innerHTML = currentPrayerName;
     document.getElementById("currentPrayerTime").innerHTML = daily[currentPrayerName];
+    document.getElementById("currentPrayerSpan").innerHTML = "+ "+currentPrayerSpan.getUTCHours() +":"+ currentPrayerSpan.getMinutes();// +":"+currentPrayerSpan.getSeconds();
 
     document.getElementById("nextPrayer").innerHTML = nextPrayerName;
     document.getElementById("nextPrayerTime").innerHTML = daily[nextPrayerName];
+    document.getElementById("nextPrayerSpan").innerHTML = "- "+nextPrayerSpan.getUTCHours() +":"+ nextPrayerSpan.getMinutes();// +":"+nextPrayerSpan.getSeconds();
 }
 function getLocation() {
     if (navigator.geolocation) {
@@ -88,11 +107,14 @@ function getLocation() {
 function setPosition(position) {
     pos.lat = position.coords.latitude;
     pos.lon = position.coords.longitude;
+    updatePrayerTime();
+    setNextPrayerMessage();
+    clock.innerHTML = new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }).toString().split(' ')[0];
     setInterval(() => {
         updatePrayerTime();
         setNextPrayerMessage();
         clock.innerHTML = new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }).toString().split(' ')[0];
-    }, 1000);
+    }, 10000);
 }
 function getuserTimezone() {
     var offset = new Date().getTimezoneOffset();
