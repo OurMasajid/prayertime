@@ -1,6 +1,7 @@
 body{
   background-color: black;
-  color: #e2ddd5;
+  color: #ebe0ce;
+  font-family: 'PT Sans Narrow', serif;
 }
 table{
   width: 100%;
@@ -28,6 +29,6 @@ table, td{
   border-collapse: collapse;
 }
 #clock{
-  font-size: 25vw;
-  line-height: .9;
+  font-size: 37vw;
+  line-height:.9;
 }
