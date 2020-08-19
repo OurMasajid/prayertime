@@ -113,9 +113,15 @@ function setPosition(position) {
     setInterval(() => {
         updatePrayerTime();
         setNextPrayerMessage();
+        makeAzan();
         clock.innerHTML = new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }).toString().split(' ')[0];
-    }, 10000);
+    }, 1000);
 }
+
+function makeAzan(){
+    if()
+}
+
 function getuserTimezone() {
     var offset = new Date().getTimezoneOffset();
     if (offset < 0)

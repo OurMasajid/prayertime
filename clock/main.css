@@ -1,6 +1,6 @@
 body{
   background-color: black;
-  color: #ebe0ce;
+  color: #e2ddd5;
 }
 table{
   width: 100%;
@@ -24,7 +24,7 @@ td:nth-child(3) {
   
 }
 table, td{
-  border: 1px solid #FFFAF0;
+  border: 1px solid #e0e0e0;
   border-collapse: collapse;
 }
 #clock{
