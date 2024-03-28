@@ -119,7 +119,7 @@ function setPosition(position) {
 }
 
 function makeAzan(){
-    if()
+    // if()
 }
 
 function getuserTimezone() {
