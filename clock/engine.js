@@ -8,6 +8,9 @@ var nextPrayerSpan = "";
 var currentPrayerSpan = "";
 var daily = "";
 var dailyWS = "";
+var azanAudio = new Audio('../azan/azan.mp3');
+var fazanAudio = new Audio('../azan/fazan.mp3');
+var lastAzan = "";
 
 function main(){
     if(!localStorage.getItem("cmethod")){
@@ -16,8 +19,12 @@ function main(){
     if(!localStorage.getItem("casr")){
         localStorage.setItem("casr", "Standard");
     }
+    if(!localStorage.getItem("autoAzan")){
+        localStorage.setItem("autoAzan", "false");
+    }
     document.getElementById("cmethod").value = localStorage.getItem("cmethod");
     document.getElementById("casr").value = localStorage.getItem("casr");
+    document.getElementById("autoAzan").checked = localStorage.getItem("autoAzan") === "true";
     getLocation();//will call setLocation, which will call updatePrayerTime
 }
 
@@ -43,6 +50,9 @@ document.getElementById("cmethod").addEventListener("change", function () {
 document.getElementById("casr").addEventListener("change", function () {
     localStorage.setItem(this.id, this.value);
     setTimeout(updatePrayerTime, 0);
+});
+document.getElementById("autoAzan").addEventListener("change", function () {
+    localStorage.setItem(this.id, this.checked);
 });
 
 function setNextPrayerMessage() {
@@ -119,7 +129,25 @@ function setPosition(position) {
 }
 
 function makeAzan(){
-    // if()
+    if(localStorage.getItem("autoAzan") === "true"){
+        let date = new Date();
+        let hours = date.getHours();
+        let mins = date.getMinutes();
+        let prayernames = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
+        for (let i = 0; i < prayernames.length; i++) {
+            let element = prayernames[i];
+            let eleHour = parseInt(dailyWS[element].split(":")[0]);
+            let eleMin = parseInt(dailyWS[element].split(":")[1]);
+            if (eleHour == hours && eleMin == mins && lastAzan != element) {
+                if(element === "fajr"){
+                    fazanAudio.play();
+                }else{
+                    azanAudio.play();
+                }
+                lastAzan = element;
+            }
+        }
+    }
 }
 
 function getuserTimezone() {
