@@ -32,3 +32,9 @@ table, td{
   font-size: 37vw;
   line-height:.9;
 }
+#cmethod {
+  margin-right: 10px;
+}
+#casr {
+  margin-left: 10px;
+}
