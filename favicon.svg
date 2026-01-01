@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <!-- Background -->
+  <rect width="192" height="192" fill="#ffd166" rx="24"/>
+  <!-- Moon crescent for prayer/night -->
+  <path d="M96 50 Q76 70 76 96 Q76 122 96 142 Q106 142 116 132 Q126 122 126 96 Q126 70 116 60 Q106 50 96 50 Z" fill="#0f1724"/>
+</svg>
