@@ -5,6 +5,9 @@ A lightweight, frontend-only prayer times app with Qibla direction, compass guid
 ## Features
 
 - **Prayer Times Calculation** — Uses [Adhan.js](https://github.com/batoulapps/Adhan_JS) for accurate Islamic prayer time calculations
+- **Live Countdown** — Real-time countdown to the next prayer with auto-updating "Next"/"Now" highlights
+- **Hijri Date** — Shows the current Islamic (Umm al-Qura) date
+- **Place Names** — Reverse-geocodes coordinates to a readable location (with graceful fallback)
 - **Qibla Direction** — Computes the direction to Mecca with mathematical precision
 - **Device Compass** — Shows live compass-guided alignment to Qibla (mobile devices)
 - **Azan Notifications** — Browser notifications with optional custom audio playback
@@ -15,12 +18,15 @@ A lightweight, frontend-only prayer times app with Qibla direction, compass guid
 ## Architecture
 
 ```
-index.html           — Semantic markup & styles
+index.html           — Semantic markup
+css/
+  styles.css         — App styles (dark theme, compass, responsive)
 js/
-  main.js           — Application logic (DOMContentLoaded entry point)
+  main.js            — Application logic (DOMContentLoaded entry point)
   vendor/
     adhan.umd.min.js — Adhan.js library (bundled UMD)
-sw.js               — Service Worker for offline & notifications
+sw.js                — Service Worker for offline & notifications
+manifest.json        — PWA manifest (icons under images/icons/)
 ```
 
 ## Setup
@@ -35,20 +41,21 @@ sw.js               — Service Worker for offline & notifications
 
 Place an MP3 file named `adhan.mp3` in the project root:
 
-```bash
-c:\code\PrayerTimeNew\
+```
+PrayerTime/
 ├── index.html
-├── adhan.mp3          ← Add here
+├── adhan.mp3          ← Add here (or per-prayer files: fajr.mp3, dhuhr.mp3, …)
 └── js/
 ```
 
-The app will play `adhan.mp3` on each prayer time. If playback fails (browser autoplay restrictions), it falls back to Speech Synthesis or a system beep.
+The app plays a prayer-specific file (e.g. `fajr.mp3`) if present, otherwise falls back to `adhan.mp3` on each prayer time. If playback fails (browser autoplay restrictions), it falls back to Speech Synthesis or a system beep.
 
 ### Settings
 
 Click **Settings** to choose:
 - **Calculation Method**: Muslim World League, North America (ISNA), Egyptian, Umm Al-Qura, Karachi, Tehran
 - **Asr Method**: Standard (Shafi'i) or Hanafi
+- **24-hour time**: Toggle between 12-hour and 24-hour clock display
 
 Settings are saved to `localStorage` and persist across sessions.
 

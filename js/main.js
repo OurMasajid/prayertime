@@ -1,368 +1,443 @@
-// PrayerTime - Prayer times, Qibla direction, and Azan notifications
-// Frontend-only application using Adhan.js for prayer calculations
+// PrayerTime - Prayer times, Qibla direction, and Azan notifications.
+// Frontend-only application using Adhan.js for prayer calculations.
 
-document.addEventListener('DOMContentLoaded', function(){
-  // Optional local Adhan audio (place `adhan.mp3` next to index.html)
-  (function addAudioElement(){
-    const a = document.createElement('audio');
-    a.id = 'adhanAudio';
-    a.src = 'adhan.mp3';
-    a.preload = 'auto';
-    a.crossOrigin = 'anonymous';
-    document.body.appendChild(a);
-  })();
+document.addEventListener('DOMContentLoaded', function () {
+  'use strict';
 
-  // Constants
-  const KAABA = {lat: 21.422487, lon: 39.826206};
+  // ---- Constants -----------------------------------------------------------
+  const KAABA = { lat: 21.422487, lon: 39.826206 };
+  const PRAYER_ORDER = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  const NOTIFY_PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']; // Sunrise is not a prayer
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const LOC_KEY = 'prayLocation';
+  const SETTINGS_KEY = 'praySettings';
 
-  const state = {lat:null,lon:null,timings:{},timeouts:[],notificationsEnabled:false};
+  const state = {
+    lat: null,
+    lon: null,
+    schedule: [],            // [{ name, date, isPrayer }]
+    qdeg: null,              // qibla bearing from north
+    deviceHeading: null,
+    notificationsEnabled: false,
+    notifyTimeouts: [],
+    notifiedKeys: new Set(), // prevents duplicate notifications within a render cycle
+  };
 
-  // Helpers
-  function el(id){return document.getElementById(id)}
-  
-  function formatTime(date){
-    if(!date) return '--:--';
-    const H = date.getHours(); const M = date.getMinutes();
-    return String(H).padStart(2,'0') + ':' + String(M).padStart(2,'0');
+  // ---- DOM helpers ---------------------------------------------------------
+  const el = (id) => document.getElementById(id);
+
+  // Local Adhan audio element (place `adhan.mp3` next to index.html).
+  const audioEl = document.createElement('audio');
+  audioEl.id = 'adhanAudio';
+  audioEl.preload = 'auto';
+  audioEl.crossOrigin = 'anonymous';
+  document.body.appendChild(audioEl);
+
+  // ---- Settings ------------------------------------------------------------
+  function defaultSettings() {
+    return { method: 'MWL', asr: 'Standard', twentyFourHour: false };
   }
 
-  function getLocalPrayerTimes(lat, lon, settings){
-    try{
-      const coords = new adhan.Coordinates(lat, lon);
-      let params = null;
-      switch((settings && settings.method) || 'MWL'){
-        case 'ISNA': params = adhan.CalculationMethod.NorthAmerica(); break;
-        case 'Egypt': params = adhan.CalculationMethod.Egyptian(); break;
-        case 'Makkah': params = adhan.CalculationMethod.UmmAlQura(); break;
-        case 'Karachi': params = adhan.CalculationMethod.Karachi(); break;
-        case 'Tehran': params = adhan.CalculationMethod.Tehran(); break;
-        case 'MWL':
-        default: params = adhan.CalculationMethod.MuslimWorldLeague(); break;
-      }
-      // apply madhab
-      params.madhab = (settings && settings.asr === 'Hanafi') ? adhan.Madhab.Hanafi : adhan.Madhab.Shafi;
-      // allow custom override of angles
-      if(settings && settings.fajrAngle) params.fajrAngle = Number(settings.fajrAngle);
-      if(settings && settings.ishaAngle) params.ishaAngle = Number(settings.ishaAngle);
-      const date = new Date();
-      const times = new adhan.PrayerTimes(coords, date, params);
-      return {
-        Fajr: formatTime(times.fajr), Sunrise: formatTime(times.sunrise), Dhuhr: formatTime(times.dhuhr),
-        Asr: formatTime(times.asr), Maghrib: formatTime(times.maghrib), Isha: formatTime(times.isha)
-      };
-    }catch(e){ console.error('Adhan calc failed', e); return null; }
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      return raw ? Object.assign(defaultSettings(), JSON.parse(raw)) : defaultSettings();
+    } catch (e) {
+      return defaultSettings();
+    }
   }
 
-  function parseTimeToDate(timeStr){
-    // timeStr like "05:12" or "05:12 (EDT)" — take HH:MM
-    const m = timeStr.match(/(\d{1,2}:\d{2})/);
-    if(!m) return null;
-    const [hh,mm] = m[1].split(":").map(Number);
-    const d = new Date();
-    d.setHours(hh,mm,0,0);
-    return d;
+  function saveSettings(s) {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
   }
 
-  function deg2rad(d){return d*Math.PI/180}
-  function rad2deg(r){return r*180/Math.PI}
-
-  function computeQibla(lat1,lon1){
-    // Bearing from (lat1,lon1) to Kaaba
-    const φ1 = deg2rad(lat1), φ2 = deg2rad(KAABA.lat);
-    const Δλ = deg2rad(KAABA.lon - lon1);
-    const y = Math.sin(Δλ)*Math.cos(φ2);
-    const x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
-    let θ = Math.atan2(y,x);
-    θ = (rad2deg(θ)+360)%360;
-    return θ; // degrees from north
+  function loadSettingsToUI() {
+    const s = loadSettings();
+    el('methodSelect').value = s.method;
+    el('asrSelect').value = s.asr;
+    el('twentyFourHour').checked = !!s.twentyFourHour;
   }
 
-  function updateLocalTime(){
-    const now = new Date();
-    el('localTime').textContent = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  function saveSettingsFromUI() {
+    const s = loadSettings();
+    s.method = el('methodSelect').value;
+    s.asr = el('asrSelect').value;
+    s.twentyFourHour = el('twentyFourHour').checked;
+    saveSettings(s);
   }
 
-  function renderTimings(timings){
+  // ---- Time formatting -----------------------------------------------------
+  function formatTime(date) {
+    if (!date) return '--:--';
+    const opts = { hour: '2-digit', minute: '2-digit', hour12: !loadSettings().twentyFourHour };
+    return date.toLocaleTimeString([], opts);
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function formatDuration(ms) {
+    if (ms < 0) ms = 0;
+    const total = Math.floor(ms / 1000);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const sec = total % 60;
+    return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+  }
+
+  // ---- Prayer calculation --------------------------------------------------
+  function getCalculationParams(settings) {
+    let params;
+    switch (settings.method) {
+      case 'ISNA': params = adhan.CalculationMethod.NorthAmerica(); break;
+      case 'Egypt': params = adhan.CalculationMethod.Egyptian(); break;
+      case 'Makkah': params = adhan.CalculationMethod.UmmAlQura(); break;
+      case 'Karachi': params = adhan.CalculationMethod.Karachi(); break;
+      case 'Tehran': params = adhan.CalculationMethod.Tehran(); break;
+      case 'MWL':
+      default: params = adhan.CalculationMethod.MuslimWorldLeague(); break;
+    }
+    params.madhab = settings.asr === 'Hanafi' ? adhan.Madhab.Hanafi : adhan.Madhab.Shafi;
+    return params;
+  }
+
+  // Returns a chronological schedule of Date objects for the given day.
+  function computeSchedule(lat, lon, settings, date) {
+    const coords = new adhan.Coordinates(lat, lon);
+    const params = getCalculationParams(settings);
+    const times = new adhan.PrayerTimes(coords, date, params);
+    const map = {
+      Fajr: times.fajr, Sunrise: times.sunrise, Dhuhr: times.dhuhr,
+      Asr: times.asr, Maghrib: times.maghrib, Isha: times.isha,
+    };
+    return PRAYER_ORDER
+      .filter((name) => map[name] instanceof Date && !isNaN(map[name]))
+      .map((name) => ({ name, date: map[name], isPrayer: name !== 'Sunrise' }));
+  }
+
+  // ---- Qibla ---------------------------------------------------------------
+  const deg2rad = (d) => (d * Math.PI) / 180;
+  const rad2deg = (r) => (r * 180) / Math.PI;
+
+  function computeQibla(lat1, lon1) {
+    const f1 = deg2rad(lat1), f2 = deg2rad(KAABA.lat);
+    const dl = deg2rad(KAABA.lon - lon1);
+    const y = Math.sin(dl) * Math.cos(f2);
+    const x = Math.cos(f1) * Math.sin(f2) - Math.sin(f1) * Math.cos(f2) * Math.cos(dl);
+    return (rad2deg(Math.atan2(y, x)) + 360) % 360;
+  }
+
+  function normalizeAngle(angle) { // -180..180
+    return ((angle + 540) % 360) - 180;
+  }
+
+  // ---- Hijri date ----------------------------------------------------------
+  function updateHijriDate() {
+    try {
+      const hijri = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+        day: 'numeric', month: 'long', year: 'numeric',
+      }).format(new Date());
+      el('hijriDate').textContent = hijri.replace(/\s*AH/, '') + ' AH';
+    } catch (e) {
+      el('hijriDate').textContent = new Date().toLocaleDateString();
+    }
+  }
+
+  // ---- Rendering -----------------------------------------------------------
+  // Index of the next prayer (skips Sunrise; wraps to tomorrow's first prayer).
+  function nextPrayerIndex(schedule, now) {
+    let idx = schedule.findIndex((it) => it.isPrayer && it.date > now);
+    if (idx === -1) idx = schedule.findIndex((it) => it.isPrayer); // all passed → tomorrow's first
+    return idx;
+  }
+
+  // Index of the current prayer = most recent prayer already begun.
+  // Before today's first prayer, this is yesterday's last prayer (its row).
+  function currentPrayerIndex(schedule, now) {
+    for (let i = schedule.length - 1; i >= 0; i--) {
+      if (schedule[i].isPrayer && schedule[i].date <= now) return i;
+    }
+    for (let i = schedule.length - 1; i >= 0; i--) {
+      if (schedule[i].isPrayer) return i;
+    }
+    return -1;
+  }
+
+  function renderTimings() {
     const container = el('prayerList');
+    const now = new Date();
+    const schedule = state.schedule;
+    if (!schedule.length) { container.innerHTML = ''; return; }
+
+    const next = nextPrayerIndex(schedule, now);
+    const current = currentPrayerIndex(schedule, now);
+
     container.innerHTML = '';
-    const order = ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
-    const now = new Date();
-    const items = [];
-    for(const name of order){
-      const timeStr = timings[name];
-      if(!timeStr) continue;
-      const d = parseTimeToDate(timeStr);
-      items.push({name, timeStr, date: d});
-    }
-    if(items.length === 0){ el('nextPrayerName').textContent = '—'; return; }
+    for (let i = 0; i < schedule.length; i++) {
+      const it = schedule[i];
+      const div = document.createElement('div');
+      div.className = 'pray' + (it.isPrayer ? '' : ' sunrise');
+      // "Next" takes precedence if an entry is somehow both.
+      if (i === next) div.classList.add('next');
+      else if (i === current) div.classList.add('current');
 
-    // find next upcoming prayer (first time > now). If none, next is first item (tomorrow)
-    let nextIndex = items.findIndex(it => it.date && it.date > now);
-    if(nextIndex === -1){
-      nextIndex = 0;
-      if(items[0].date) items[0].date = new Date(items[0].date.getTime() + 24*60*60*1000);
-    }
-    const currentIndex = (nextIndex - 1 + items.length) % items.length;
-
-    let nextTime = items[nextIndex].date;
-    let currentTime = items[currentIndex].date;
-    if(!nextTime || !currentTime){
-      // fallback: just mark next
-      for(let i=0;i<items.length;i++){
-        const it = items[i];
-        const div = document.createElement('div'); div.className='pray';
-        if(i===nextIndex) div.classList.add('next');
-        const left = document.createElement('div'); left.innerHTML = `<div class="name">${it.name}</div><div class="small">${it.timeStr}</div>`;
-        const right = document.createElement('div'); right.className='adhan-time'; right.textContent = it.date? it.date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : it.timeStr;
-        div.appendChild(left); div.appendChild(right); container.appendChild(div);
-      }
-      el('nextPrayerName').textContent = items[nextIndex].name;
-      return;
-    }
-
-    if(nextTime <= currentTime){ nextTime = new Date(nextTime.getTime() + 24*60*60*1000); }
-    if(currentTime > now){ currentTime = new Date(currentTime.getTime() - 24*60*60*1000); }
-    const isCurrent = now >= currentTime && now < nextTime;
-
-    for(let i=0;i<items.length;i++){
-      const it = items[i];
-      const div = document.createElement('div'); div.className='pray';
-      if(i===nextIndex) div.classList.add('next');
-      if(i===currentIndex && isCurrent) div.classList.add('current');
-      const left = document.createElement('div'); left.innerHTML = `<div class="name">${it.name}</div><div class="small">${it.timeStr}</div>`;
-      const right = document.createElement('div'); right.className='adhan-time'; right.textContent = it.date? it.date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : it.timeStr;
-      div.appendChild(left); div.appendChild(right); container.appendChild(div);
-    }
-    el('nextPrayerName').textContent = items[nextIndex].name;
-  }
-
-  function scheduleNotifications(timings){
-    // clear previous timeouts
-    state.timeouts.forEach(t=>clearTimeout(t)); state.timeouts=[];
-    const now = new Date();
-    const order = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
-    for(const name of order){
-      const tstr = timings[name]; if(!tstr) continue;
-      const dt = parseTimeToDate(tstr);
-      if(!dt) continue;
-      let ms = dt.getTime() - now.getTime();
-      if(ms < 0) ms += 24*60*60*1000; // schedule for next day if passed
-      if(state.notificationsEnabled){
-        const to = setTimeout(()=>{
-          showAzanNotification(name);
-        }, ms);
-        state.timeouts.push(to);
-      }
+      const badge = i === next ? '<span class="badge">Next</span>'
+        : (i === current ? '<span class="badge">Now</span>' : '');
+      div.innerHTML =
+        `<div class="name">${it.name}${badge}</div>` +
+        `<div class="time">${formatTime(it.date)}</div>`;
+      container.appendChild(div);
     }
   }
 
-  function showAzanNotification(prayer){
-    if(Notification.permission === 'granted'){
-      navigator.serviceWorker?.getRegistration().then(reg=>{
-        if(reg && reg.showNotification){
-          reg.showNotification(`Azan — ${prayer}`,{body:`It's time for ${prayer}`,tag:'azan'})
-        } else {
-          new Notification(`Azan — ${prayer}`,{body:`It's time for ${prayer}`});
+  // The next prayer entry as an absolute Date (wraps to tomorrow if needed).
+  function getNextPrayer() {
+    const now = new Date();
+    const schedule = state.schedule;
+    if (!schedule.length) return null;
+    const upcoming = schedule.find((it) => it.isPrayer && it.date > now);
+    if (upcoming) return upcoming;
+    // Everything today passed — first prayer tomorrow.
+    const first = schedule.find((it) => it.isPrayer);
+    return first ? { name: first.name, date: new Date(first.date.getTime() + DAY_MS), isPrayer: true } : null;
+  }
+
+  // ---- Per-second tick: clock, countdown, highlight, notifications --------
+  let lastRenderedMinute = -1;
+  function tick() {
+    const now = new Date();
+    el('localTime').textContent = formatTime(now);
+
+    const np = getNextPrayer();
+    if (np) {
+      el('nextPrayerName').textContent = np.name;
+      el('nextPrayerTime').textContent = formatTime(np.date);
+      el('countdown').textContent = formatDuration(np.date.getTime() - now.getTime());
+
+      // Fire azan when the moment arrives (in-page, while app is open).
+      if (state.notificationsEnabled) {
+        const key = np.name + np.date.toDateString();
+        if (np.date <= now && !state.notifiedKeys.has(key)) {
+          state.notifiedKeys.add(key);
+          showAzanNotification(np.name);
         }
-      });
+      }
+    }
+
+    // Re-render the list when the minute changes or a prayer just passed.
+    if (now.getMinutes() !== lastRenderedMinute) {
+      lastRenderedMinute = now.getMinutes();
+      renderTimings();
+      updateHijriDate();
+    }
+  }
+
+  // ---- Notifications & audio ----------------------------------------------
+  function showAzanNotification(prayer) {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      const opts = { body: `It's time for ${prayer}`, tag: 'azan', icon: './images/icons/icon-192x192.png' };
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.getRegistration().then((reg) => {
+          if (reg && reg.showNotification) reg.showNotification(`Azan — ${prayer}`, opts);
+          else new Notification(`Azan — ${prayer}`, opts);
+        }).catch(() => new Notification(`Azan — ${prayer}`, opts));
+      } else {
+        new Notification(`Azan — ${prayer}`, opts);
+      }
     }
     playAdhan(prayer);
   }
 
-  // Try to play a prayer-specific Adhan audio file (e.g., fajr.mp3, dhuhr.mp3), fallback to adhan.mp3, then TTS or beep
-  function playAdhan(prayer){
-    const audioEl = document.getElementById('adhanAudio');
-    if(!audioEl) { speakFallback(prayer); return; }
-    
-    // Try prayer-specific file first (e.g., fajr.mp3, dhuhr.mp3)
-    const prayerLower = prayer.toLowerCase();
-    const prayerFile = `${prayerLower}.mp3`;
-    const genericFile = 'adhan.mp3';
-    
-    // Try specific file
-    audioEl.src = prayerFile;
-    audioEl.pause();
+  // Try a prayer-specific file (e.g. fajr.mp3), then generic adhan.mp3, then TTS/beep.
+  function playAdhan(prayer) {
+    const specific = `${prayer.toLowerCase()}.mp3`;
+    audioEl.src = specific;
     audioEl.currentTime = 0;
-    audioEl.play().catch(err=>{
-      // Fallback to generic adhan.mp3
-      audioEl.src = genericFile;
+    audioEl.play().catch(() => {
+      audioEl.src = 'adhan.mp3';
       audioEl.currentTime = 0;
-      audioEl.play().catch(err2=>{
-        // If audio fails, fallback to speech
-        speakFallback(prayer);
-      });
+      audioEl.play().catch(() => speakFallback(prayer));
     });
   }
 
-  function speakFallback(prayer){
-    try{
-      const s = `It's time for ${prayer}`;
-      const u = new SpeechSynthesisUtterance(s);
+  function speakFallback(prayer) {
+    try {
+      const u = new SpeechSynthesisUtterance(`It's time for ${prayer}`);
       u.lang = 'en-US';
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
-    }catch(e){
-      try{
-        const ctx = new (window.AudioContext||window.webkitAudioContext)();
-        const o = ctx.createOscillator(); const g = ctx.createGain();
-        o.type='sine'; o.frequency.value=440; g.gain.value=0.05; o.connect(g); g.connect(ctx.destination);
-        o.start(); setTimeout(()=>{o.stop();ctx.close();},1800);
-      }catch(e){console.warn('Audio unavailable',e)}
+    } catch (e) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = 440; g.gain.value = 0.05;
+        o.connect(g); g.connect(ctx.destination);
+        o.start(); setTimeout(() => { o.stop(); ctx.close(); }, 1800);
+      } catch (err) { console.warn('Audio unavailable', err); }
     }
   }
 
-  // Main
-  async function refresh(){
-    updateLocalTime();
-    
-    const lat = state.lat || parseFloat(el('latInput').value) || null;
-    const lon = state.lon || parseFloat(el('lonInput').value) || null;
-    if(!lat || !lon){
-      // try geolocation
-      try{
-        const pos = await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{enableHighAccuracy:true,timeout:8000}));
-        state.lat = pos.coords.latitude; state.lon = pos.coords.longitude;
-      }catch(e){
+  // ---- Location ------------------------------------------------------------
+  function saveLocation(lat, lon) {
+    try { localStorage.setItem(LOC_KEY, JSON.stringify({ lat, lon })); } catch (e) {}
+  }
+
+  function loadLocation() {
+    try {
+      const raw = localStorage.getItem(LOC_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+
+  // Reverse-geocode to a human-readable place name (best effort, no key).
+  async function resolveLocationName(lat, lon) {
+    el('locationName').textContent = 'Locating…';
+    try {
+      const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('geocode failed');
+      const j = await res.json();
+      const parts = [j.city || j.locality, j.principalSubdivision, j.countryName].filter(Boolean);
+      el('locationName').textContent = parts.length ? parts.join(', ') : 'Your location';
+    } catch (e) {
+      el('locationName').textContent = 'Your location';
+    }
+  }
+
+  // ---- Main refresh --------------------------------------------------------
+  async function refresh() {
+    if (state.lat == null || state.lon == null) {
+      const manualLat = parseFloat(el('latInput').value);
+      const manualLon = parseFloat(el('lonInput').value);
+      if (!isNaN(manualLat) && !isNaN(manualLon)) {
+        state.lat = manualLat; state.lon = manualLon;
+      } else if (navigator.geolocation) {
+        try {
+          const pos = await new Promise((res, rej) =>
+            navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 8000 }));
+          state.lat = pos.coords.latitude;
+          state.lon = pos.coords.longitude;
+        } catch (e) {
+          el('locationName').textContent = 'Coordinates required';
+          el('coords').textContent = 'Enter them manually below.';
+          return;
+        }
+      } else {
         el('locationName').textContent = 'Coordinates required';
-        el('coords').textContent = '';
         return;
       }
     }
-    el('locationName').textContent = 'Using coordinates';
-    el('coords').textContent = `${state.lat?.toFixed(4)}, ${state.lon?.toFixed(4)}`;
-    try{
-      // compute timezone offset and load settings
-      const tz = -new Date().getTimezoneOffset()/60;
-      const settings = loadSettings();
-      // get local times using Adhan.js
-      let times = getLocalPrayerTimes(state.lat, state.lon, settings);
 
-      state.timings = times;
-      renderTimings(times);
-      const qdeg = computeQibla(state.lat,state.lon).toFixed(1);
-      state.qdeg = Number(qdeg);
-      el('qiblaDeg').textContent = `${qdeg}°`;
-      const marker = el('qiblaMarker'); if(marker) marker.style.transform = `rotate(${qdeg}deg)`;
-      scheduleNotifications(times);
-    }catch(err){console.error(err)}
+    saveLocation(state.lat, state.lon);
+    el('coords').textContent = `${state.lat.toFixed(4)}, ${state.lon.toFixed(4)}`;
+    resolveLocationName(state.lat, state.lon);
+
+    try {
+      const settings = loadSettings();
+      state.schedule = computeSchedule(state.lat, state.lon, settings, new Date());
+      state.notifiedKeys.clear();
+      lastRenderedMinute = -1; // force re-render on next tick
+
+      state.qdeg = computeQibla(state.lat, state.lon);
+      el('qiblaDeg').textContent = `${state.qdeg.toFixed(1)}°`;
+      const marker = el('qiblaMarker');
+      if (marker && state.deviceHeading == null) marker.style.transform = `rotate(${state.qdeg}deg)`;
+
+      renderTimings();
+      tick();
+    } catch (err) {
+      console.error('Failed to compute prayer times', err);
+    }
   }
 
-  // Controls
-  el('refreshBtn').addEventListener('click',()=>{ refresh(); });
-  el('settingsBtn').addEventListener('click',()=>{ el('settingsModal').style.display='flex'; loadSettingsToUI(); });
-  el('closeSettings').addEventListener('click',()=>{ el('settingsModal').style.display='none'; });
-  el('saveSettings').addEventListener('click',()=>{ saveSettingsFromUI(); el('settingsModal').style.display='none'; refresh(); });
+  // ---- Compass -------------------------------------------------------------
+  function handleOrientationEvent(ev) {
+    const heading = ev.webkitCompassHeading != null
+      ? ev.webkitCompassHeading
+      : (ev.alpha != null ? 360 - ev.alpha : null);
+    if (heading == null) return;
 
-  el('notifBtn').addEventListener('click',async ()=>{
-    if(Notification.permission === 'granted'){
-      state.notificationsEnabled = !state.notificationsEnabled;
-      el('notifBtn').textContent = state.notificationsEnabled? 'Disable Azan' : 'Enable Azan';
-      scheduleNotifications(state.timings);
-      return;
+    state.deviceHeading = heading;
+    el('deviceHeading').textContent = `Device heading: ${heading.toFixed(0)}°`;
+    if (state.qdeg == null) return;
+
+    const diff = normalizeAngle(state.qdeg - heading);
+    const marker = el('qiblaMarker');
+    if (marker) marker.style.transform = `rotate(${diff}deg)`;
+
+    const instr = el('turnInstruction');
+    const absd = Math.abs(diff);
+    if (absd <= 5) { instr.textContent = 'Facing Qibla — aligned ✓'; instr.style.color = 'var(--green)'; }
+    else if (diff > 0) { instr.textContent = `Turn right ${Math.round(absd)}°`; instr.style.color = 'var(--accent)'; }
+    else { instr.textContent = `Turn left ${Math.round(absd)}°`; instr.style.color = 'var(--accent)'; }
+  }
+
+  function enableCompass() {
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      // iOS 13+ requires a user gesture; defer until first tap.
+      const ask = () => {
+        DeviceOrientationEvent.requestPermission().then((res) => {
+          if (res === 'granted') window.addEventListener('deviceorientation', handleOrientationEvent, true);
+        }).catch(() => {});
+        window.removeEventListener('click', ask);
+      };
+      window.addEventListener('click', ask, { once: true });
+    } else if ('ondeviceorientationabsolute' in window) {
+      window.addEventListener('deviceorientationabsolute', handleOrientationEvent, true);
+    } else if ('ondeviceorientation' in window) {
+      window.addEventListener('deviceorientation', handleOrientationEvent, true);
     }
-    if(Notification.permission !== 'denied'){
+  }
+
+  // ---- Settings modal ------------------------------------------------------
+  function openModal() { el('settingsModal').classList.add('open'); loadSettingsToUI(); }
+  function closeModal() { el('settingsModal').classList.remove('open'); }
+
+  // ---- Wiring --------------------------------------------------------------
+  el('refreshBtn').addEventListener('click', () => { state.lat = state.lon = null; refresh(); });
+  el('applyCoords').addEventListener('click', () => {
+    const lat = parseFloat(el('latInput').value), lon = parseFloat(el('lonInput').value);
+    if (!isNaN(lat) && !isNaN(lon)) { state.lat = lat; state.lon = lon; refresh(); }
+  });
+  el('settingsBtn').addEventListener('click', openModal);
+  el('closeSettings').addEventListener('click', closeModal);
+  el('saveSettings').addEventListener('click', () => { saveSettingsFromUI(); closeModal(); refresh(); });
+  el('settingsModal').addEventListener('click', (e) => { if (e.target === el('settingsModal')) closeModal(); });
+
+  el('notifBtn').addEventListener('click', async () => {
+    if (typeof Notification === 'undefined') { alert('Notifications are not supported in this browser.'); return; }
+    if (Notification.permission === 'granted') {
+      state.notificationsEnabled = !state.notificationsEnabled;
+    } else if (Notification.permission !== 'denied') {
       const p = await Notification.requestPermission();
-      if(p === 'granted'){
-        state.notificationsEnabled = true; el('notifBtn').textContent = 'Disable Azan';
-        // Suggest registering a service worker for richer notifications if available
-        scheduleNotifications(state.timings);
-      }else{ alert('Notifications blocked — enable in browser settings to receive Azan alerts.'); }
+      if (p === 'granted') state.notificationsEnabled = true;
+      else { alert('Notifications blocked — enable in browser settings to receive Azan alerts.'); return; }
     } else {
       alert('Notifications denied. Change browser settings to allow.');
+      return;
     }
+    el('notifBtn').textContent = state.notificationsEnabled ? 'Disable Azan' : 'Enable Azan';
+    state.notifiedKeys.clear();
   });
 
-  // Update clock every 5 seconds   
-  setInterval(updateLocalTime, 5*1000);
-
-  // Try to register a simple service worker to enable showNotification from registration (optional)
-  if('serviceWorker' in navigator){
-    try{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){}
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 
-  // Device orientation / compass support (enabled by default)
-  function normalizeAngle(angle){ // returns -180..180
-    let a = ((angle + 540) % 360) - 180;
-    return a;
+  // ---- Boot ----------------------------------------------------------------
+  const saved = loadLocation();
+  if (saved && typeof saved.lat === 'number' && typeof saved.lon === 'number') {
+    state.lat = saved.lat; state.lon = saved.lon;
+    el('latInput').value = saved.lat; el('lonInput').value = saved.lon;
   }
-
-  function handleOrientationEvent(ev){
-    // Try webkitCompassHeading (iOS), otherwise use alpha
-    const heading = ev.webkitCompassHeading || (ev.alpha != null ? (360 - ev.alpha) : null);
-    if(heading == null) return;
-    state.deviceHeading = heading; // degrees
-    el('deviceHeading').textContent = `Device heading: ${heading.toFixed(0)}°`;
-    if(state.qdeg == null) return;
-    // angle to rotate arrow relative to device (so arrow points toward qibla on device screen)
-    const raw = state.qdeg - heading;
-    const diff = normalizeAngle(raw);
-    // Rotate the Qibla marker relative to fixed pointer so the marker moves
-    const marker = el('qiblaMarker');
-    if(marker) marker.style.transform = `rotate(${diff}deg)`;
-
-    // Instruction: left or right
-    const absd = Math.abs(diff);
-    const instr = el('turnInstruction');
-    if(absd <= 5){ instr.textContent = 'Facing Qibla — aligned'; instr.style.color = '#7efc9a'; }
-    else if(diff > 0){ instr.textContent = `Turn right ${Math.round(absd)}°`; instr.style.color = '#ffd166'; }
-    else { instr.textContent = `Turn left ${Math.round(absd)}°`; instr.style.color = '#ffd166'; }
-  }
-
-  async function enableCompass(){
-    // enable automatically (request permission on iOS 13+)
-    if(typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
-      try{
-        const res = await DeviceOrientationEvent.requestPermission();
-        if(res === 'granted'){
-          window.addEventListener('deviceorientation', handleOrientationEvent, true);
-        } else {
-          console.warn('Compass permission denied.');
-        }
-      }catch(e){
-        console.warn('Compass permission failed.', e);
-      }
-    } else if('ondeviceorientationabsolute' in window){
-      window.addEventListener('deviceorientationabsolute', handleOrientationEvent, true);
-    } else if('ondeviceorientation' in window){
-      window.addEventListener('deviceorientation', handleOrientationEvent, true);
-    } else {
-      console.warn('Device orientation not supported on this device.');
-    }
-  }
-
-  // auto-enable compass
+  updateHijriDate();
   enableCompass();
-
-  // Initial load
   refresh();
+  setInterval(tick, 1000);
 
-  // Settings persistence
-  function loadSettings(){
-    const raw = localStorage.getItem('praySettings');
-    if(!raw) return {fajrAngle:18, ishaAngle:17, asr:'Standard', method:'MWL'};
-    try{return JSON.parse(raw);}catch(e){return {fajrAngle:18, ishaAngle:17, asr:'Standard', method:'MWL'}}
-  }
-
-  function saveSettings(s){ localStorage.setItem('praySettings', JSON.stringify(s)); }
-
-  function loadSettingsToUI(){
-    const s = loadSettings();
-    el('methodSelect').value = s.method || 'MWL';
-    el('asrSelect').value = s.asr || 'Standard';
-  }
-
-  function saveSettingsFromUI(){
-    const s = loadSettings();
-    s.method = el('methodSelect').value;
-    s.asr = el('asrSelect').value;
-    // adjust angles based on method (simple mapping)
-    if(s.method === 'MWL'){ s.fajrAngle = 18; s.ishaAngle = 17; }
-    else if(s.method === 'ISNA'){ s.fajrAngle = 15; s.ishaAngle = 15; }
-    else if(s.method === 'Egypt'){ s.fajrAngle = 19.5; s.ishaAngle = 17.5; }
-    else if(s.method === 'Makkah'){ s.fajrAngle = 18.5; s.ishaAngle = 90; }
-    else if(s.method === 'Karachi'){ s.fajrAngle = 18; s.ishaAngle = 18; }
-    else if(s.method === 'Tehran'){ s.fajrAngle = 17.7; s.ishaAngle = 14; }
-    s.asr = el('asrSelect').value;
-    saveSettings(s);
+  // Honor the "Refresh" PWA shortcut (manifest start_url ?action=refresh).
+  if (new URLSearchParams(location.search).get('action') === 'refresh') {
+    state.lat = state.lon = null;
+    refresh();
   }
 });

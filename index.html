@@ -2,141 +2,133 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#ffd166" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1724" />
   <meta name="description" content="Prayer times, Qibla direction, and Azan notifications" />
   <title>PrayerTime — Times · Qibla · Azan</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="./favicon.svg" />
-  <style>
-    :root{--bg:#0f1724;--card:#0b1220;--muted:#98a0b3;--accent:#ffd166;--base-font-size:16px}
-    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#071028 0%,#081220 100%);color:#e6eef8;font-size:var(--base-font-size)}
-    .app{max-width:960px;margin:auto;padding:20px}
-    /* header{display:flex;align-items:center;justify-content:space-between;gap:12px} */
-    h1{font-size:25px;margin:0}
-    .meta{color:var(--muted);font-size:17px}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.04));border-radius:12px;padding:16px;margin-top:16px;box-shadow:0 4px 18px rgba(2,6,23,0.6)}
-    .grid{display:grid;grid-template-columns:1fr 320px;gap:16px}
-    .times{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .pray{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)}
-    .pray.next{outline:2px solid rgba(210, 206, 198, 0.07);background:linear-gradient(90deg,rgba(255,209,102,0.06),rgba(255,209,102,0.02))}
-    .pray.current{outline:2px solid rgba(186, 254, 201, 0.08);background:linear-gradient(90deg,rgba(144, 230, 162, 0.04),rgba(143, 68, 68, 0.02))}
-    .pray .name{font-weight:600;font-size:1.25rem}
-    .controls{display:flex;gap:8px;margin-top:16px;justify-content:space-between;}
-    button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:9px 12px;border-radius:8px;cursor:pointer;}
-    .qibla{display:flex;flex-direction:column;align-items:center;gap:12px}
-    .compass{width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.02), transparent 40%);display:flex;align-items:center;justify-content:center;position:relative}
-    .north{position:absolute;top:10px;font-size:17px;color:var(--muted)}
-    .pointer{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:18px solid var(--accent);filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));z-index:20}
-    .qiblaMarker{width:6px;height:90px;background:var(--accent);border-radius:6px;transform-origin:center bottom;position:absolute}
-    .small{font-size:17px;color:var(--muted)}
-    .adhan-time{font-size:20px;color:var(--muted)}
-    .footer{margin-top:17px;color:var(--muted);font-size:17px}
-    input[type=number]{width:120px;padding:9px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit;font-size:14px}
-    .row{display:flex;gap:8px;align-items:center}
-    @media (max-width:820px){.grid{grid-template-columns:1fr;}.compass{width:180px;height:180px}}
-    @media (max-width:600px){
-      .times{grid-template-columns:1fr}
-    }
-  </style>
-  <script src="./js/vendor/adhan.umd.min.js"></script>
-  <script src="./js/main.js"></script>
+  <link rel="apple-touch-icon" href="./images/icons/icon-192x192.png" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <script defer src="./js/vendor/adhan.umd.min.js"></script>
+  <script defer src="./js/main.js"></script>
 </head>
 <body>
   <div class="app">
-    <header>
-      <div>
-        <h1>PrayerTime</h1>
-        <div class="meta">Prayer times, Qibla direction, and Azan notifications.</div>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">☾</span>
+        <div>
+          <h1>PrayerTime</h1>
+          <div class="meta" id="hijriDate">—</div>
+        </div>
+      </div>
+      <div class="header-clock">
+        <div class="small">Local time</div>
+        <div class="header-time" id="localTime">--:--</div>
       </div>
     </header>
 
-    <div class="card grid">
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
+    <!-- Hero: next prayer countdown -->
+    <section class="card hero" aria-live="polite">
+      <div class="hero-label">Next prayer</div>
+      <div class="hero-name" id="nextPrayerName">—</div>
+      <div class="hero-countdown" id="countdown">--:--:--</div>
+      <div class="hero-at small">at <span id="nextPrayerTime">--:--</span></div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <div class="loc-row">
           <div>
-            <div id="locationName" style="font-weight:700">Detecting location…</div>
+            <div class="loc-name" id="locationName">Detecting location…</div>
             <div class="small" id="coords"></div>
           </div>
-          <div style="text-align:right" class="small">Local time: <span id="localTime">--:--</span></div>
+          <button id="refreshBtn" class="btn btn-ghost" title="Refresh times">⟳</button>
         </div>
 
-        <div style="margin-top:12px">
-          <div class="times" id="prayerList"></div>
-        </div>
+        <div class="times" id="prayerList"></div>
 
         <div class="controls">
-            <button id="refreshBtn">Refresh</button>
-            <button id="notifBtn">Enable Azan</button>
-            <button id="settingsBtn">Settings</button>
-        </div>
-        <div class="footer">
-          If geolocation fails, enter coordinates below and click Refresh.
+          <button id="notifBtn" class="btn">Enable Azan</button>
+          <button id="settingsBtn" class="btn btn-ghost">Settings</button>
         </div>
 
-        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
-          <label class="small">Lat</label>
-          <input id="latInput" type="number" step="0.0001" placeholder="e.g. 24.7136" />
-          <label class="small">Lon</label>
-          <input id="lonInput" type="number" step="0.0001" placeholder="e.g. 46.6753" />
-        </div>
-      </div>
+        <details class="manual">
+          <summary class="small">Enter coordinates manually</summary>
+          <div class="row">
+            <label class="small">Lat
+              <input id="latInput" type="number" step="0.0001" placeholder="24.7136" />
+            </label>
+            <label class="small">Lon
+              <input id="lonInput" type="number" step="0.0001" placeholder="46.6753" />
+            </label>
+            <button id="applyCoords" class="btn btn-ghost">Apply</button>
+          </div>
+        </details>
+      </section>
 
-      <aside class="qibla card" style="padding:16px;">
-        <div style="display:flex;justify-content:space-between;width:100%">
+      <aside class="card qibla">
+        <div class="qibla-head">
           <div>
             <div class="small">Qibla direction</div>
-            <div id="qiblaDeg" style="font-weight:700;font-size:18px">--°</div>
-          </div>
-          <div style="text-align:right">
-            <div class="small">Next prayer</div>
-            <div id="nextPrayerName" style="font-weight:700">--</div>
+            <div class="qibla-deg" id="qiblaDeg">--°</div>
           </div>
         </div>
 
         <div class="compass" id="compass">
-          <div class="north">N</div>
-          <div class="pointer" id="pointer"></div>
+          <span class="cardinal n">N</span>
+          <span class="cardinal e">E</span>
+          <span class="cardinal s">S</span>
+          <span class="cardinal w">W</span>
+          <div class="pointer" id="pointer" aria-hidden="true"></div>
           <div class="qiblaMarker" id="qiblaMarker" style="transform:rotate(0deg)"></div>
+          <div class="compass-center"></div>
         </div>
 
-        <div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:8px">
+        <div class="qibla-info">
           <div class="small" id="deviceHeading">Device heading: —</div>
-          <div id="turnInstruction" class="small">Point your device to see guidance.</div>
-          <div class="small" id="distance">Kaaba coords: 21.4225°N, 39.8262°E</div>
+          <div id="turnInstruction" class="turn small">Point your device to see guidance.</div>
+          <div class="small muted" id="distance">Kaaba: 21.4225°N, 39.8262°E</div>
         </div>
       </aside>
     </div>
 
-    <div style="margin-top:14px;color:var(--muted);font-size:13px">Notes: Notifications require user permission and a page gesture to enable audio on some browsers.</div>
+    <p class="footer small">
+      Notifications require permission and a page interaction to enable audio on some browsers.
+    </p>
   </div>
 
   <!-- Settings modal -->
-  <div id="settingsModal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);z-index:9999">
-    <div style="background:#07101a;padding:16px;border-radius:10px;min-width:320px;color:#e6eef8">
-      <h3 style="margin:0 0 8px 0">Settings</h3>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <label class="small">Calculation method
-          <select id="methodSelect">
-            <option value="MWL">Muslim World League</option>
-            <option value="ISNA">North America (ISNA)</option>
-            <option value="Egypt">Egyptian</option>
-            <option value="Makkah">Umm Al-Qura (Makkah)</option>
-            <option value="Karachi">Karachi</option>
-            <option value="Tehran">Tehran</option>
-          </select>
+  <div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-card">
+      <h3 id="settingsTitle">Settings</h3>
+      <div class="field">
+        <label class="small" for="methodSelect">Calculation method</label>
+        <select id="methodSelect">
+          <option value="MWL">Muslim World League</option>
+          <option value="ISNA">North America (ISNA)</option>
+          <option value="Egypt">Egyptian</option>
+          <option value="Makkah">Umm Al-Qura (Makkah)</option>
+          <option value="Karachi">Karachi</option>
+          <option value="Tehran">Tehran</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="small" for="asrSelect">Asr method</label>
+        <select id="asrSelect">
+          <option value="Standard">Standard (Shafi'i)</option>
+          <option value="Hanafi">Hanafi</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="small toggle">
+          <input type="checkbox" id="twentyFourHour" /> 24-hour time
         </label>
-        <label class="small">Asr method
-          <select id="asrSelect">
-            <option value="Standard">Standard (Shafi'i)</option>
-            <option value="Hanafi">Hanafi</option>
-          </select>
-        </label>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button id="saveSettings">Save</button>
-          <button id="closeSettings">Close</button>
-        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="closeSettings" class="btn btn-ghost">Close</button>
+        <button id="saveSettings" class="btn">Save</button>
       </div>
     </div>
   </div>
