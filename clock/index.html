@@ -2,88 +2,73 @@
 <html lang="en">
 
 <head>
-  <title>Prayer Time</title>
+  <title>Prayer Time — Clock</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="theme-color" content="#0f1724">
   <link rel="stylesheet" href="main.css">
-  <link href="https://fonts.googleapis.com/css2?family=PT+Sans+Narrow&display=swap" rel="stylesheet">
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@400;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <table>
-    <tr>
-      <td>Fajr</td>
-      <td id="f">0:00</td>
-      <td rowspan="7">
-        <div id="clock"></div>
-        <div>
-          <span id="currentPrayer"></span> at
-          <span id="currentPrayerTime"></span>
-          (<span id="currentPrayerSpan"></span>)
+  <div class="wrap">
+    <main class="display">
+      <div id="clock" class="clock">--:--<span class="sec">--</span></div>
+      <div class="date-line">
+        <span id="gregDate">—</span> · <span id="hijriDate">—</span>
+      </div>
+      <div class="next-block">
+        <div class="next-line">
+          <span id="nextPrayer" class="accent">—</span> in
+          <span id="nextPrayerSpan" class="accent">--:--:--</span>
+          <span class="muted">at <span id="nextPrayerTime">--:--</span></span>
         </div>
-        <div>
-          <span id="nextPrayer"></span> at
-          <span id="nextPrayerTime"></span>
-          (<span id="nextPrayerSpan"></span>)
+        <div class="cur-line muted">
+          <span id="currentPrayer">—</span> since
+          <span id="currentPrayerTime">--:--</span>
+          (<span id="currentPrayerSpan">--:--</span> ago)
         </div>
-      </td>
-    </tr>
-    <tr>
-      <td>Sunrise</td>
-      <td id="s">0:00</td>
-    </tr>
-    <tr>
-      <td>Dhuhur</td>
-      <td id="d">0:00</td>
-    </tr>
-    <tr>
-      <td>Asr</td>
-      <td id="a">0:00</td>
-    </tr>
-    <tr>
-      <td>Maghrib</td>
-      <td id="m">0:00</td>
-    </tr>
-    <tr>
-      <td>Isha</td>
-      <td id="i">0:00</td>
-    </tr>
-    <tr>
-      <td>Midnight</td>
-      <td id="mid">0:00</td>
-    </tr>
-  </table>
-  
-  
-  
-  
-  <br>
+      </div>
+    </main>
 
-  <label>Calculation Method</label>
-  <select id="cmethod">
-    <option value="ISNA">Islamic Society of North America (ISNA)</option>
-    <option value="MWL">Muslim World League</option>
-    <option value="Egypt">Egyptian General Authority of Survey</option>
-    <option value="Makkah">Umm Al-Qura University, Makkah</option>
-    <option value="Karachi">University of Islamic Sciences, Karachi</option>
-    <option value="Tehran">Institute of Geophysics, University of Tehran</option>
-  </select>
+    <aside class="times">
+      <div class="prow" id="row-fajr"><span class="pname">Fajr</span><span id="f" class="ptime">—</span></div>
+      <div class="prow" id="row-sunrise"><span class="pname">Sunrise</span><span id="s" class="ptime">—</span></div>
+      <div class="prow" id="row-dhuhr"><span class="pname">Dhuhr</span><span id="d" class="ptime">—</span></div>
+      <div class="prow" id="row-asr"><span class="pname">Asr</span><span id="a" class="ptime">—</span></div>
+      <div class="prow" id="row-maghrib"><span class="pname">Maghrib</span><span id="m" class="ptime">—</span></div>
+      <div class="prow" id="row-isha"><span class="pname">Isha</span><span id="i" class="ptime">—</span></div>
+      <div class="prow" id="row-midnight"><span class="pname">Midnight</span><span id="mid" class="ptime">—</span></div>
+    </aside>
+  </div>
 
-  <label>Asr Setting</label>
-  <select id="casr">
-    <option value="Standard">Shafi`i, Maliki, Ja`fari, Hanbali</option>
-    <option value="Hanafi">Hanafi</option>
-  </select>
-
-  <label>Auto Azan</label>
-  <input type="checkbox" id="autoAzan">
-
+  <footer class="controls">
+    <span id="locLabel" class="muted">Detecting location…</span>
+    <label>Method
+      <select id="cmethod">
+        <option value="ISNA">Islamic Society of North America (ISNA)</option>
+        <option value="MWL">Muslim World League</option>
+        <option value="Egypt">Egyptian General Authority of Survey</option>
+        <option value="Makkah">Umm Al-Qura University, Makkah</option>
+        <option value="Karachi">University of Islamic Sciences, Karachi</option>
+        <option value="Tehran">Institute of Geophysics, University of Tehran</option>
+      </select>
+    </label>
+    <label>Asr
+      <select id="casr">
+        <option value="Standard">Shafi'i, Maliki, Ja'fari, Hanbali</option>
+        <option value="Hanafi">Hanafi</option>
+      </select>
+    </label>
+    <label class="check">Auto Azan
+      <input type="checkbox" id="autoAzan">
+    </label>
+  </footer>
 
   <!-- prayer time code -->
   <script src="./prayertime.js"></script>
   <script src="./engine.js"></script>
-
 </body>
 
 </html>

@@ -1,40 +1,155 @@
-body{
-  background-color: black;
-  color: #ebe0ce;
-  font-family: 'PT Sans Narrow', serif;
+:root {
+  --bg: #0b1018;
+  --text: #ebe0ce;
+  --muted: #8a8275;
+  --accent: #ffd166;
+  --line: #2a2a2a;
+  --row-current: rgba(126, 252, 154, 0.10);
+  --row-next: rgba(255, 209, 102, 0.12);
 }
-table{
-  width: 100%;
-  text-transform:capitalize;
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'PT Sans Narrow', sans-serif;
 }
-td{
-  font-size: 4vw;
+
+.muted { color: var(--muted); }
+.accent { color: var(--accent); }
+
+.wrap {
+  display: flex;
+  min-height: calc(100vh - 52px);
+  align-items: stretch;
 }
-td:nth-child(2) { 
-  width:10%;
-  border-left-width: 0;
- }
- td:nth-child(1) { 
-  padding-left: 10px;
-  border-right-width: 0;
-  width:17%;
- }
-td:nth-child(3) {  
-  width: 73%;
+
+/* Main clock display */
+.display {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2vh 2vw;
   text-align: center;
-  
+  min-width: 0;
 }
-table, td{
-  border: 1px solid #e0e0e0;
-  border-collapse: collapse;
+.clock {
+  font-size: 26vw;
+  line-height: 0.85;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
-#clock{
-  font-size: 37vw;
-  line-height:.9;
+.clock .sec {
+  font-size: 0.32em;
+  color: var(--accent);
+  vertical-align: super;
+  margin-left: 0.15em;
+  font-weight: 400;
 }
-#cmethod {
-  margin-right: 10px;
+.clock .ampm {
+  font-size: 0.22em;
+  color: var(--muted);
+  vertical-align: super;
+  margin-left: 0.2em;
+  font-weight: 400;
 }
-#casr {
-  margin-left: 10px;
+.date-line {
+  margin-top: 1.5vh;
+  font-size: 2.4vw;
+  color: var(--muted);
+}
+.next-block {
+  margin-top: 2.5vh;
+}
+.next-line {
+  font-size: 3.4vw;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+.next-line .muted { font-weight: 400; font-size: 0.7em; }
+.cur-line {
+  font-size: 2.2vw;
+  margin-top: 0.6vh;
+  text-transform: capitalize;
+}
+
+/* Prayer times sidebar */
+.times {
+  flex: 0 0 26%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4vh;
+  padding: 2vh 1.5vw;
+  border-left: 1px solid var(--line);
+}
+.prow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 1.1vh 1vw;
+  border-radius: 8px;
+  font-size: 2.6vw;
+  text-transform: capitalize;
+  transition: background 0.3s;
+}
+.prow .ptime {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.prow.current {
+  background: var(--row-current);
+}
+.prow.next {
+  background: var(--row-next);
+}
+.prow.next .pname,
+.prow.next .ptime { color: var(--accent); font-weight: 700; }
+#row-sunrise, #row-midnight { opacity: 0.6; font-size: 2.2vw; }
+
+/* Controls footer */
+.controls {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+.controls label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+.controls .check { gap: 8px; }
+#locLabel { margin-right: auto; }
+select {
+  background: #141a24;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-family: inherit;
+  font-size: 13px;
+}
+input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
+
+/* Portrait / small screens: stack */
+@media (max-aspect-ratio: 1/1), (max-width: 700px) {
+  .wrap { flex-direction: column; }
+  .clock { font-size: 38vw; }
+  .date-line { font-size: 4.5vw; }
+  .next-line { font-size: 6vw; }
+  .cur-line { font-size: 4vw; }
+  .times {
+    flex: 0 0 auto;
+    border-left: none;
+    border-top: 1px solid var(--line);
+  }
+  .prow { font-size: 5vw; }
+  #row-sunrise, #row-midnight { font-size: 4.2vw; }
 }
