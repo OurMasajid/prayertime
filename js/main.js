@@ -358,6 +358,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     state.deviceHeading = heading;
     el('deviceHeading').textContent = `Device heading: ${heading.toFixed(0)}°`;
+
+    // Rotate the cardinal dial so N keeps pointing to true north as the device turns.
+    const dial = el('dial');
+    if (dial) dial.style.transform = `rotate(${-heading}deg)`;
+
     if (state.qdeg == null) return;
 
     const diff = normalizeAngle(state.qdeg - heading);

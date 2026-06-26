@@ -186,6 +186,11 @@ input[type=number] {
     rgba(255, 255, 255, 0.02);
   border: 2px solid var(--card-border);
 }
+.dial {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.2s ease-out;
+}
 .cardinal { position: absolute; font-size: 0.8rem; color: var(--muted); font-weight: 600; }
 .cardinal.n { top: 8px; left: 50%; transform: translateX(-50%); color: var(--accent); }
 .cardinal.s { bottom: 8px; left: 50%; transform: translateX(-50%); }
@@ -273,5 +278,5 @@ select {
   .times { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .qiblaMarker { transition: none; }
+  .qiblaMarker, .dial { transition: none; }
 }
