@@ -7,6 +7,7 @@ var dailyWS = {};  // 24-hour strings, used for scheduling/comparison
 var azanAudio = new Audio('../azan/azan.mp3');
 var fazanAudio = new Audio('../azan/fazan.mp3');
 var lastAzan = "";
+var cityName = "";
 
 var PRAYERS = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
 var LOC_KEY = "clockLocation";
@@ -31,7 +32,7 @@ function main() {
   // Prayer times need a location: use the last known one immediately (works
   // offline), then refine with a live geolocation fix.
   var saved = loadLocation();
-  if (saved) applyLocation(saved.lat, saved.lon);
+  if (saved) applyLocation(saved.lat, saved.lon, saved.city);
   getLocation();
 }
 
@@ -146,7 +147,10 @@ function getLocation() {
 
 function geoError() {
   // Clock keeps running; only prayer times need a location.
-  if (!hasLocation) {
+  if (hasLocation) {
+    // We're already running on saved coordinates — keep using them.
+    updateLocLabel(" · using saved location (live location off)");
+  } else {
     document.getElementById("locLabel").textContent =
       "📍 Location permission missing — prayer times unavailable. Enable location to show them.";
   }
@@ -154,21 +158,44 @@ function geoError() {
 
 function setPosition(position) {
   applyLocation(position.coords.latitude, position.coords.longitude);
-  saveLocation(pos.lat, pos.lon);
+  resolveCityName(pos.lat, pos.lon); // updates the label and persists with city
 }
 
 // Apply a known location and (re)compute prayer times.
-function applyLocation(lat, lon) {
+function applyLocation(lat, lon, city) {
   pos.lat = lat;
   pos.lon = lon;
   hasLocation = true;
-  document.getElementById("locLabel").textContent = lat.toFixed(3) + ", " + lon.toFixed(3);
+  if (city) cityName = city;
+  updateLocLabel();
   updatePrayerTime();
   setCurrentNextPrayer();
 }
 
-function saveLocation(lat, lon) {
-  try { localStorage.setItem(LOC_KEY, JSON.stringify({ lat: lat, lon: lon })); } catch (e) {}
+// Footer label: prefer the city name, fall back to coordinates.
+function updateLocLabel(suffix) {
+  var base = cityName || (pos.lat.toFixed(3) + ", " + pos.lon.toFixed(3));
+  document.getElementById("locLabel").textContent = base + (suffix || "");
+}
+
+// Best-effort reverse geocode to a readable place name (no API key).
+function resolveCityName(lat, lon) {
+  var url = "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" +
+    lat + "&longitude=" + lon + "&localityLanguage=en";
+  fetch(url)
+    .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
+    .then(function (j) {
+      var parts = [j.city || j.locality, j.principalSubdivision, j.countryName].filter(Boolean);
+      if (parts.length) { cityName = parts.join(", "); updateLocLabel(); }
+      saveLocation(lat, lon, cityName);
+    })
+    .catch(function () { saveLocation(lat, lon, cityName); });
+}
+
+function saveLocation(lat, lon, city) {
+  try {
+    localStorage.setItem(LOC_KEY, JSON.stringify({ lat: lat, lon: lon, city: city || "" }));
+  } catch (e) {}
 }
 
 function loadLocation() {
