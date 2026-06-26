@@ -29,6 +29,7 @@ html, body {
 
 /* Main clock display */
 .display {
+  position: relative;
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
@@ -36,6 +37,18 @@ html, body {
   padding: 2vh 2.5vw;
   min-width: 0;
 }
+/* Subtle Islamic geometric watermark behind the clock */
+.display::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('assets/star.svg') center 42% no-repeat;
+  background-size: min(68vh, 60vw);
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+}
+.clock-zone, .status-bar { position: relative; z-index: 1; }
 .clock-zone {
   flex: 1 1 auto;
   display: flex;
@@ -69,6 +82,13 @@ html, body {
   margin-top: 1.5vh;
   font-size: 2.4vw;
   color: var(--muted);
+}
+.divider {
+  width: min(30vw, 320px);
+  height: 14px;
+  margin-top: 1.6vh;
+  background: url('assets/divider.svg') center / contain no-repeat;
+  opacity: 0.8;
 }
 
 /* Bottom status bar: current anchored left, next anchored right */

@@ -1,0 +1,40 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffd166" stroke-width="1.4" stroke-linejoin="round">
+  <!-- outer ring -->
+  <circle cx="100" cy="100" r="97" stroke-width="1"/>
+  <circle cx="100" cy="100" r="90"/>
+
+  <!-- 16-ray sunburst between the rings -->
+  <g stroke-width="0.9">
+    <g id="ray"><line x1="100" y1="90" x2="100" y2="97"/></g>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(22.5 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(45 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(67.5 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(90 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(112.5 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(135 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(157.5 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(180 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(202.5 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(225 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(247.5 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(270 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(292.5 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(315 100 100)"/>
+    <line x1="100" y1="90" x2="100" y2="97" transform="rotate(337.5 100 100)"/>
+  </g>
+
+  <!-- 8-pointed star: two overlapping squares (Rub el Hizb) -->
+  <rect x="32" y="32" width="136" height="136" rx="2"/>
+  <rect x="32" y="32" width="136" height="136" rx="2" transform="rotate(45 100 100)"/>
+
+  <!-- inner octagon -->
+  <polygon points="100,55 131.8,68.2 145,100 131.8,131.8 100,145 68.2,131.8 55,100 68.2,68.2"/>
+
+  <!-- inner 8-point star -->
+  <rect x="72" y="72" width="56" height="56"/>
+  <rect x="72" y="72" width="56" height="56" transform="rotate(45 100 100)"/>
+
+  <!-- center -->
+  <circle cx="100" cy="100" r="9" stroke-width="1.2"/>
+  <circle cx="100" cy="100" r="2.2" fill="#ffd166" stroke="none"/>
+</svg>
