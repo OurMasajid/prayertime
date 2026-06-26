@@ -32,14 +32,20 @@ html, body {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2vh 2vw;
-  text-align: center;
+  justify-content: space-between;
+  padding: 2vh 2.5vw;
   min-width: 0;
 }
+.clock-zone {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
 .clock {
-  font-size: 26vw;
+  font-size: 28vw;
   line-height: 0.85;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -64,20 +70,38 @@ html, body {
   font-size: 2.4vw;
   color: var(--muted);
 }
-.next-block {
-  margin-top: 2.5vh;
+
+/* Bottom status bar: current anchored left, next anchored right */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  gap: 2vw;
 }
-.next-line {
-  font-size: 3.4vw;
+.status { display: flex; flex-direction: column; }
+.status-current { text-align: left; align-items: flex-start; }
+.status-next { text-align: right; align-items: flex-end; }
+.status-label {
+  font-size: 1.4vw;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.status-main {
+  font-size: 3vw;
   font-weight: 700;
   text-transform: capitalize;
+  line-height: 1.1;
 }
-.next-line .muted { font-weight: 400; font-size: 0.7em; }
-.cur-line {
-  font-size: 2.2vw;
-  margin-top: 0.6vh;
-  text-transform: capitalize;
+.status-main .muted { font-weight: 400; font-size: 0.6em; }
+.status-sub {
+  font-size: 4.2vw;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
 }
+.status-current .status-sub { font-size: 2.6vw; font-weight: 400; }
 
 /* Prayer times sidebar */
 .times {
@@ -143,8 +167,12 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
   .wrap { flex-direction: column; }
   .clock { font-size: 38vw; }
   .date-line { font-size: 4.5vw; }
-  .next-line { font-size: 6vw; }
-  .cur-line { font-size: 4vw; }
+  .status-bar { gap: 4vw; }
+  .status-label { font-size: 3vw; }
+  .status-main { font-size: 6vw; }
+  .status-main .muted { font-size: 0.55em; }
+  .status-sub { font-size: 7vw; }
+  .status-current .status-sub { font-size: 4.5vw; }
   .times {
     flex: 0 0 auto;
     border-left: none;

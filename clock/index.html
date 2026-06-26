@@ -14,20 +14,30 @@
 <body>
   <div class="wrap">
     <main class="display">
-      <div id="clock" class="clock">--:--<span class="sec">--</span></div>
-      <div class="date-line">
-        <span id="gregDate">—</span> · <span id="hijriDate">—</span>
-      </div>
-      <div class="next-block">
-        <div class="next-line">
-          <span id="nextPrayer" class="accent">—</span> in
-          <span id="nextPrayerSpan" class="accent">--:--:--</span>
-          <span class="muted">at <span id="nextPrayerTime">--:--</span></span>
+      <div class="clock-zone">
+        <div id="clock" class="clock">--:--<span class="sec">--</span></div>
+        <div class="date-line">
+          <span id="gregDate">—</span> · <span id="hijriDate">—</span>
         </div>
-        <div class="cur-line muted">
-          <span id="currentPrayer">—</span> since
-          <span id="currentPrayerTime">--:--</span>
-          (<span id="currentPrayerSpan">--:--</span> ago)
+      </div>
+
+      <div class="status-bar">
+        <div class="status status-current">
+          <div class="status-label">Current</div>
+          <div class="status-main">
+            <span id="currentPrayer">—</span>
+            <span class="muted">since <span id="currentPrayerTime">--:--</span></span>
+          </div>
+          <div class="status-sub muted"><span id="currentPrayerSpan">--:--</span> ago</div>
+        </div>
+
+        <div class="status status-next">
+          <div class="status-label">Next</div>
+          <div class="status-main">
+            <span id="nextPrayer" class="accent">—</span>
+            <span class="muted">at <span id="nextPrayerTime">--:--</span></span>
+          </div>
+          <div class="status-sub accent"><span id="nextPrayerSpan">--:--:--</span></div>
         </div>
       </div>
     </main>
