@@ -137,14 +137,14 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-size: 6vw;
+  font-size: 5vw;
   font-weight: 700;
   text-transform: capitalize;
   transition: background 0.3s;
 }
 .prow .ptime {
   font-variant-numeric: tabular-nums;
-  font-size: 7vw;
+  font-size: 5vw;
   font-weight: 700;
 }
 .prow.current {
