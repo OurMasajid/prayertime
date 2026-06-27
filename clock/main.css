@@ -58,11 +58,12 @@ html, body {
   text-align: center;
 }
 .clock {
-  font-size: 28vw;
-  line-height: 0.85;
-  font-weight: 700;
+  font-family: 'Oswald', 'PT Sans Narrow', sans-serif;
+  font-size: 30vw;
+  line-height: 0.82;
+  font-weight: 300;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
 }
 .clock .sec {
   font-size: 0.32em;
@@ -79,8 +80,8 @@ html, body {
   font-weight: 400;
 }
 .date-line {
-  margin-top: 1.5vh;
-  font-size: 2.4vw;
+  margin-top: 3.5vh;
+  font-size: 3.4vw;
   color: var(--muted);
 }
 .divider {
@@ -137,12 +138,14 @@ html, body {
   justify-content: space-between;
   align-items: baseline;
   font-size: 4vw;
+  font-weight: 700;
   text-transform: capitalize;
   transition: background 0.3s;
 }
 .prow .ptime {
   font-variant-numeric: tabular-nums;
   font-size: 4.5vw;
+  font-weight: 700;
 }
 .prow.current {
   background: var(--row-current);
