@@ -139,13 +139,13 @@ html, body {
   align-items: baseline;
   padding: 1.1vh 1vw;
   border-radius: 8px;
-  font-size: 2.6vw;
+  font-size: 3.5vw;
   text-transform: capitalize;
   transition: background 0.3s;
 }
 .prow .ptime {
   font-variant-numeric: tabular-nums;
-  color: var(--muted);
+  font-size: 4.5vw;
 }
 .prow.current {
   background: var(--row-current);
@@ -155,7 +155,7 @@ html, body {
 }
 .prow.next .pname,
 .prow.next .ptime { color: var(--accent); font-weight: 700; }
-#row-sunrise, #row-midnight { opacity: 0.6; font-size: 2.2vw; }
+#row-sunrise, #row-midnight { opacity: 0.6; font-size: 2.7vw; }
 
 /* Controls footer */
 .controls {
