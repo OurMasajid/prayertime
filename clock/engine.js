@@ -53,7 +53,6 @@ function updatePrayerTime() {
   document.getElementById("a").innerHTML = daily.asr;
   document.getElementById("m").innerHTML = daily.maghrib;
   document.getElementById("i").innerHTML = daily.isha;
-  document.getElementById("mid").innerHTML = daily.midnight;
 }
 
 // Build a Date for today at the given "HH:MM" 24-hour string.
@@ -102,7 +101,7 @@ function setCurrentNextPrayer() {
   document.getElementById("nextPrayerSpan").textContent = formatSpan(nextDate - now, true);
 
   // Highlight the corresponding rows.
-  PRAYERS.concat(["sunrise", "midnight"]).forEach(function (name) {
+  PRAYERS.concat(["sunrise"]).forEach(function (name) {
     var row = document.getElementById("row-" + name);
     if (row) row.classList.remove("current", "next");
   });
