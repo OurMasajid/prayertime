@@ -120,8 +120,7 @@ function updateClock() {
   if (h12 === 0) h12 = 12;
   var hm = h12 + ":" + pad(now.getMinutes());
   document.getElementById("clock").innerHTML =
-    hm + '<span class="sec">' + pad(now.getSeconds()) + "</span>" +
-    '<span class="ampm">' + ampm + "</span>";
+    hm + '<span class="ampm">' + ampm + "</span>";
 }
 
 function updateDates() {
