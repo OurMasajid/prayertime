@@ -110,7 +110,7 @@ html, body {
   color: var(--muted);
 }
 .status-main {
-  font-size: 3vw;
+  font-size: 5vw;
   font-weight: 700;
   text-transform: capitalize;
   line-height: 1.1;
