@@ -126,7 +126,7 @@ html, body {
 
 /* Prayer times sidebar */
 .times {
-  flex: 0 0 26%;
+  flex: 0 0 32%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -137,14 +137,14 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-size: 4vw;
+  font-size: 6vw;
   font-weight: 700;
   text-transform: capitalize;
   transition: background 0.3s;
 }
 .prow .ptime {
   font-variant-numeric: tabular-nums;
-  font-size: 4.5vw;
+  font-size: 7vw;
   font-weight: 700;
 }
 .prow.current {
