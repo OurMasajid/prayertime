@@ -129,17 +129,14 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.4vh;
-  padding: 2vh 1.5vw;
+  padding: 1vh 0.5vw;
   border-left: 1px solid var(--line);
 }
 .prow {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding: 1.1vh 1vw;
-  border-radius: 8px;
-  font-size: 3.5vw;
+  font-size: 4vw;
   text-transform: capitalize;
   transition: background 0.3s;
 }
